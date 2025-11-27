@@ -12,69 +12,64 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="CENTER" spacing="15.0" style="-fx-background-color: #2b2b2b;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="br.edu.unijui.piu.guessquest.SecondaryController">
+<VBox fx:id="mainContainer" alignment="CENTER" spacing="20.0" style="-fx-background-color: #2b2b2b;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="br.edu.unijui.piu.guessquest.SecondaryController">
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
 
-    <!-- Header com Botão Voltar e Placar -->
-    <HBox alignment="CENTER_LEFT" spacing="20">
-        <Button fx:id="backButton" onAction="#switchToPrimary" style="-fx-background-color: transparent; -fx-text-fill: #888888; -fx-cursor: hand;" text="&lt; BACK">
-            <font>
-                <Font name="Ithaca" size="14.0" />
-            </font>
+    <!-- Top Bar -->
+    <HBox alignment="CENTER" spacing="40" style="-fx-border-color: #444; -fx-border-width: 0 0 2 0; -fx-padding: 0 0 15 0;" VBox.vgrow="NEVER">
+        <Button onAction="#onGiveUp" text="QUIT" style="-fx-background-color: transparent; -fx-text-fill: #888888; -fx-cursor: hand; -fx-border-color: #888888; -fx-border-width: 2;">
+             <font><Font name="Ithaca" size="14.0" /></font>
+             <padding><Insets top="5" bottom="5" left="15" right="15"/></padding>
         </Button>
-        <StackPane HBox.hgrow="ALWAYS" alignment="CENTER_RIGHT">
-             <Label fx:id="scoreLabel" text="SCORE: 0" textFill="#ffffffff">
-                <font>
-                    <Font name="Ithaca" size="24.0" />
-                </font>
-            </Label>
-        </StackPane>
+        <Label fx:id="scoreLabel" text="SCORE 00000" textFill="#ffd700">
+            <font><Font name="Ithaca" size="28.0" /></font>
+        </Label>
+        <Label fx:id="livesLabel" text="HP ♥♥♥" textFill="#ff4444">
+            <font><Font name="System" size="24.0" /></font>
+        </Label>
     </HBox>
 
-    <!-- Área da Imagem -->
-    <StackPane prefHeight="350.0" prefWidth="600.0">
+    <!-- Monitor do Jogo -->
+    <StackPane fx:id="monitorPane" VBox.vgrow="ALWAYS" style="-fx-border-color: #111; -fx-border-width: 10; -fx-background-color: black; -fx-background-radius: 5; -fx-border-radius: 5;">
         <children>
-            <ImageView fx:id="gameImageView" fitHeight="340.0" fitWidth="600.0" pickOnBounds="true" preserveRatio="true">
-                <effect>
-                    <DropShadow height="20.0" radius="9.5" width="20.0" />
-                </effect>
-            </ImageView>
-            <ProgressIndicator fx:id="loadingSpinner" maxHeight="50.0" maxWidth="50.0" visible="false" />
+            <ImageView fx:id="gameImageView" preserveRatio="true" smooth="false" />
+            <ProgressIndicator fx:id="loadingSpinner" maxHeight="60.0" maxWidth="60.0" visible="false" />
         </children>
+        <effect>
+            <DropShadow color="#000000" height="30" radius="15" width="30"/>
+        </effect>
+        <VBox.margin>
+            <Insets top="10" bottom="10" />
+        </VBox.margin>
     </StackPane>
 
-    <Label fx:id="feedbackLabel" text="LOADING..." textFill="#cccccc">
-        <font>
-            <Font name="Ithaca" size="18.0" />
-        </font>
-    </Label>
+    <!-- Feedback -->
+    <VBox alignment="CENTER" minHeight="60" VBox.vgrow="NEVER">
+        <Label fx:id="feedbackLabel" text="LOADING..." textFill="#8623b4">
+            <font><Font name="Ithaca" size="24.0" /></font>
+        </Label>
+        <Label fx:id="hintLabel" text="" textFill="#ffffff" wrapText="true" textAlignment="CENTER">
+            <font><Font name="Monospaced Bold" size="20.0" /></font>
+        </Label>
+    </VBox>
 
-    <HBox alignment="CENTER" spacing="15.0">
-        <children>
-            <TextField fx:id="guessField" promptText="TYPE THE GAME NAME..." style="-fx-background-radius: 0; -fx-padding: 8; -fx-border-color: #8623b4ff; -fx-border-width: 2; -fx-background-color: #1a1a1a; -fx-text-fill: white;">
-                <font>
-                    <Font name="Ithaca" size="14.0" />
-                </font>
-                <prefWidth>300.0</prefWidth>
-            </TextField>
-            <Button fx:id="submitButton" defaultButton="true" mnemonicParsing="false" onAction="#onGuess" style="-fx-background-color: #8623b4ff; -fx-text-fill: white; -fx-background-radius: 0; -fx-cursor: hand;" text="GUESS">
-                <font>
-                    <Font name="Ithaca" size="16.0" />
-                </font>
-                <padding>
-                    <Insets bottom="8.0" left="20.0" right="20.0" top="8.0" />
-                </padding>
-            </Button>
-        </children>
-    </HBox>
+    <!-- Inputs -->
+    <HBox alignment="CENTER" spacing="15.0" VBox.vgrow="NEVER">
+        <TextField fx:id="guessField" alignment="CENTER" prefWidth="400.0" promptText="INSERT NAME..." 
+                   style="-fx-background-color: transparent; -fx-text-fill: white; -fx-border-color: transparent transparent #8623b4 transparent; -fx-border-width: 0 0 4 0; -fx-font-family: 'Ithaca'; -fx-font-size: 22px; -fx-prompt-text-fill: #555;" />
+        
+        <Button fx:id="submitButton" defaultButton="true" onAction="#onGuess" text="GUESS" style="-fx-background-color: #8623b4; -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 0;">
+            <font><Font name="Ithaca" size="20.0" /></font>
+            <padding><Insets top="10" bottom="10" left="30" right="30"/></padding>
+        </Button>
 
-    <HBox alignment="CENTER" spacing="20.0">
-        <Button fx:id="nextButton" mnemonicParsing="false" onAction="#onNextGame" style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-background-radius: 0; -fx-cursor: hand;" text="SKIP (-5 PTS)">
-            <font>
-                <Font name="Ithaca" size="14.0" />
-            </font>
+        <!-- Botão SKIP -->
+        <Button onAction="#onSkip" text="SKIP (-5)" style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 0;">
+            <font><Font name="Ithaca" size="20.0" /></font>
+            <padding><Insets top="10" bottom="10" left="20" right="20"/></padding>
         </Button>
     </HBox>
+
 </VBox>
