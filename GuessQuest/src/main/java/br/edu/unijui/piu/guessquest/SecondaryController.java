@@ -25,15 +25,44 @@ import javafx.scene.layout.VBox;
 public class SecondaryController {
 
     private static final String API_KEY = "e6234549ffcb449f9502ec12c04a4201";
+    // Mantemos page_size=40 para ter um pool grande de alternativas e evitar repetição
     private static final String API_URL_TEMPLATE = "https://api.rawg.io/api/games?key=%s&ordering=-added&metacritic=%s&page_size=40&page=%d"; 
-    // Aumentei page_size para 40 para ter mais chances de achar jogos válidos numa única requisição
+
+    // NOVO: Conjunto estático para armazenar nomes de jogos já usados nesta sessão
+    private static final Set<String> gamesPlayedThisSession = new HashSet<>();
 
     private static final Set<String> INVALID_EXACT_NAMES = new HashSet<>();
     static {
         INVALID_EXACT_NAMES.add("PC");
         INVALID_EXACT_NAMES.add("PlayStation");
         INVALID_EXACT_NAMES.add("Xbox");
-        // ... (lista mantida e expandida na lógica)
+        INVALID_EXACT_NAMES.add("Nintendo Switch");
+        INVALID_EXACT_NAMES.add("macOS");
+        INVALID_EXACT_NAMES.add("Linux");
+        INVALID_EXACT_NAMES.add("Android");
+        INVALID_EXACT_NAMES.add("iOS");
+        INVALID_EXACT_NAMES.add("Singleplayer");
+        INVALID_EXACT_NAMES.add("Multiplayer");
+        INVALID_EXACT_NAMES.add("Co-op");
+        INVALID_EXACT_NAMES.add("Action");
+        INVALID_EXACT_NAMES.add("Adventure");
+        INVALID_EXACT_NAMES.add("RPG");
+        INVALID_EXACT_NAMES.add("Strategy");
+        INVALID_EXACT_NAMES.add("Shooter");
+        INVALID_EXACT_NAMES.add("Puzzle");
+        INVALID_EXACT_NAMES.add("Casual");
+        INVALID_EXACT_NAMES.add("Indie");
+        INVALID_EXACT_NAMES.add("Simulation");
+        INVALID_EXACT_NAMES.add("Arcade");
+        INVALID_EXACT_NAMES.add("Platformer");
+        INVALID_EXACT_NAMES.add("Racing");
+        INVALID_EXACT_NAMES.add("Sports");
+        INVALID_EXACT_NAMES.add("Family");
+        INVALID_EXACT_NAMES.add("Fighting");
+        INVALID_EXACT_NAMES.add("Board Games");
+        INVALID_EXACT_NAMES.add("Educational");
+        INVALID_EXACT_NAMES.add("Card");
+        INVALID_EXACT_NAMES.add("Massively Multiplayer");
     }
 
     @FXML private Label lblPhase;
@@ -53,6 +82,12 @@ public class SecondaryController {
     @FXML
     public void initialize() {
         state = GameState.getInstance();
+        
+        // Se for a primeira fase, limpa o histórico de jogos para começar do zero
+        if (state.getCurrentPhase() == 1) {
+            gamesPlayedThisSession.clear();
+        }
+        
         updateUIHeader();
         loadNextLevel();
     }
@@ -62,7 +97,6 @@ public class SecondaryController {
         lblPhase.setText(String.format("FASE: %02d-15", state.getCurrentPhase()));
         lblScore.setText(String.format("PONTOS: %06d", state.getCurrentScore()));
         
-        // MUDANÇA: Usando Joystick 🕹 ao invés de Coração ❤
         StringBuilder livesStr = new StringBuilder("VIDAS: ");
         for (int i = 0; i < state.getCurrentLives(); i++) {
             livesStr.append("🕹 "); 
@@ -85,9 +119,7 @@ public class SecondaryController {
                 GameData levelData = null;
                 int attempts = 0;
                 
-                // Tenta buscar dados válidos até 3 vezes
                 while (attempts < 3) {
-                    // Se for a última tentativa, força página 1 para garantir dados
                     boolean forceSafePage = (attempts == 2); 
                     levelData = fetchGameData(forceSafePage);
                     
@@ -95,10 +127,9 @@ public class SecondaryController {
                         break;
                     }
                     attempts++;
-                    Thread.sleep(500); // Pequena pausa antes de tentar de novo
+                    Thread.sleep(500); 
                 }
                 
-                // Se ainda assim falhar (ex: sem internet), usa o Fallback de Emergência
                 if (levelData == null || levelData.options.isEmpty() || levelData.correctName.equals("API Error")) {
                     levelData = getEmergencyFallbackData();
                 }
@@ -107,17 +138,14 @@ public class SecondaryController {
                 Platform.runLater(() -> setupLevelUI(finalData));
             } catch (Exception e) {
                 e.printStackTrace();
-                // Em caso de crash total da thread, carrega fallback na UI
                 Platform.runLater(() -> setupLevelUI(getEmergencyFallbackData()));
             }
         }).start();
     }
 
-    // Dados de emergência para o jogo nunca travar "Sem Imagem"
     private GameData getEmergencyFallbackData() {
         GameData data = new GameData();
         data.correctName = "Pac-Man";
-        // URL de imagem confiável ou placeholder
         data.imageUrl = "https://media.rawg.io/media/games/b21/b21555abc69d04d9b5d7da855e70d858.jpg"; 
         data.options.add("Pac-Man");
         data.options.add("Tetris");
@@ -133,10 +161,12 @@ public class SecondaryController {
         lblFeedback.setText(""); 
 
         this.correctGameName = data.correctName;
+        // Adiciona o jogo atual à lista de jogos usados para não repetir
+        gamesPlayedThisSession.add(data.correctName);
 
         try {
             if (data.imageUrl != null && !data.imageUrl.isEmpty()) {
-                gameImage.setImage(new Image(data.imageUrl, true)); // true = load in background
+                gameImage.setImage(new Image(data.imageUrl, true)); 
             } else {
                 gameImage.setImage(null);
                 lblFeedback.setText("SEM IMAGEM");
@@ -145,7 +175,6 @@ public class SecondaryController {
             lblFeedback.setText("ERRO NA IMAGEM");
         }
 
-        // Garante 4 opções mesmo se a API falhar parcialmente
         List<String> options = data.options;
         int backupCount = 1;
         while(options.size() < 4) {
@@ -171,12 +200,10 @@ public class SecondaryController {
         interactionLocked = true;
 
         if (selectedAnswer.equalsIgnoreCase(correctGameName)) {
-            // ACERTOU
             clickedButton.getStyleClass().add("button-correct");
             lblFeedback.setText("CORRETO! +1000 PTS");
             lblFeedback.setStyle("-fx-text-fill: #00ff00;");
             
-            // CORREÇÃO: Usa .wav conforme seus arquivos
             SoundManager.getInstance().playSound("correct.wav");
             
             state.addScore(1000);
@@ -192,12 +219,10 @@ public class SecondaryController {
             }, 1500);
 
         } else {
-            // ERROU
             clickedButton.getStyleClass().add("button-wrong");
             lblFeedback.setText("ERRADO! PERDEU VIDA");
             lblFeedback.setStyle("-fx-text-fill: #ff3333;");
             
-            // CORREÇÃO: Usa .wav
             SoundManager.getInstance().playSound("wrong.wav");
             
             state.decreaseLife();
@@ -226,13 +251,11 @@ public class SecondaryController {
         if (win) {
             lblFeedback.setText("PARABÉNS! VOCÊ ZEROU!");
             lblFeedback.setStyle("-fx-text-fill: gold;");
-            // Se você não tiver win.wav, pode comentar ou converter o arquivo
-            SoundManager.getInstance().playSound("win.wav"); 
+            SoundManager.getInstance().playSound("win.mp3"); 
         } else {
             lblFeedback.setText("GAME OVER");
             lblFeedback.setStyle("-fx-text-fill: red;");
-            // Se você não tiver gameover.mp3/wav, o som simplesmente não toca (sem erro)
-            SoundManager.getInstance().playSound("gameover.wav");
+            SoundManager.getInstance().playSound("gameover.mp3");
         }
         
         new java.util.Timer().schedule(new java.util.TimerTask() {
@@ -252,21 +275,18 @@ public class SecondaryController {
         btnD.getStyleClass().setAll(baseStyle);
     }
 
-    // Adicionado parametro forceSafePage
     private GameData fetchGameData(boolean forceSafePage) throws Exception {
         int pageBase;
         
         if (forceSafePage) {
-            pageBase = 1; // Página segura garantida
+            pageBase = 1; 
         } else {
             pageBase = random.nextInt(50) + 1; 
             if (state.getCurrentPhase() > 5) pageBase += 100;
-            // No modo SOULS arrisca páginas profundas, mas se falhar o retry cai no forceSafePage
             if (state.getDifficulty() == GameState.Difficulty.SOULS) pageBase = random.nextInt(500) + 1;
         }
 
         String metacriticFilter = state.getDifficulty().metacriticRange;
-        // Relaxa filtro em fases avançadas ou fallback
         if ((state.getCurrentPhase() > 10 && state.getDifficulty() != GameState.Difficulty.SOULS) || forceSafePage) {
             metacriticFilter = "50,100";
         }
@@ -291,7 +311,6 @@ public class SecondaryController {
         List<String> namesFound = new ArrayList<>();
         List<String> imagesFound = new ArrayList<>();
 
-        // Regex ajustada
         Pattern gamePattern = Pattern.compile("\"slug\":\"(?<slug>[^\"]+)\"[^\\{\\[]*?\"name\":\"(?<name>[^\"]+)\"");
         Matcher matcher = gamePattern.matcher(json);
 
@@ -314,25 +333,43 @@ public class SecondaryController {
             return data;
         }
 
-        // Tenta pegar aleatório, mas garante limites
-        int maxIndex = Math.min(namesFound.size(), 4);
-        int correctIndex = random.nextInt(maxIndex);
+        // CORREÇÃO: Removemos jogos que já foram jogados nessa sessão da lista de candidatos a "correto"
+        List<String> candidates = new ArrayList<>(namesFound);
+        candidates.removeIf(gamesPlayedThisSession::contains);
+
+        // Se todos os jogos da página já foram jogados (raro), relaxamos a regra e usamos qualquer um
+        if (candidates.isEmpty()) {
+            candidates = namesFound; 
+        }
+
+        // CORREÇÃO CRÍTICA: Usamos candidates.size() em vez de limitar a 4. 
+        // Isso permite pegar jogos do final da lista de 40 itens, garantindo variedade.
+        int correctIndex = random.nextInt(candidates.size());
+        data.correctName = candidates.get(correctIndex);
         
-        data.correctName = namesFound.get(correctIndex);
+        // Precisamos achar o índice original para pegar a imagem correta
+        int originalIndex = namesFound.indexOf(data.correctName);
         
-        if (correctIndex < imagesFound.size()) {
-            data.imageUrl = imagesFound.get(correctIndex);
+        if (originalIndex < imagesFound.size()) {
+            data.imageUrl = imagesFound.get(originalIndex);
         } else if (!imagesFound.isEmpty()) {
             data.imageUrl = imagesFound.get(0);
         }
 
         data.options.add(data.correctName);
-        for (int i = 0; i < namesFound.size(); i++) {
+        
+        // Seleciona opções erradas do POOL INTEIRO de nomes encontrados
+        // Shuffle na lista completa garante que não pegaremos sempre os vizinhos imediatos
+        List<String> wrongOptionsPool = new ArrayList<>(namesFound);
+        wrongOptionsPool.remove(data.correctName); // Tira a correta
+        Collections.shuffle(wrongOptionsPool);
+        
+        // Pega as 3 primeiras após embaralhar
+        for (String wrongOption : wrongOptionsPool) {
             if (data.options.size() < 4) {
-                String n = namesFound.get(i);
-                if (!data.options.contains(n)) {
-                    data.options.add(n);
-                }
+                data.options.add(wrongOption);
+            } else {
+                break;
             }
         }
         
@@ -342,13 +379,9 @@ public class SecondaryController {
 
     private boolean isValidGameName(String name, String slug) {
         if (name == null || name.trim().isEmpty()) return false;
-        if (INVALID_EXACT_NAMES.contains(name)) return false; // Usa a lista static definida no início
+        if (INVALID_EXACT_NAMES.contains(name)) return false; 
         
-        // Bloqueia caracteres não latinos (Russo, Chinês, etc)
-        // Isso evita "Для одного игрока"
         if (name.matches(".*[^\\x00-\\x7F\\p{L}\\p{N}\\s\\p{P}].*") && !name.matches(".*[áéíóúãõçÁÉÍÓÚÃÕÇ].*")) {
-             // A regex acima é estrita para ASCII, mas permitimos acentos portugueses básicos.
-             // Se tiver caracteres muito estranhos (cirílico), rejeita.
              if (name.matches(".*\\p{InCyrillic}.*")) return false;
         }
         
@@ -359,7 +392,7 @@ public class SecondaryController {
             lowerName.contains("soundtrack") || 
             lowerName.contains("dlc") ||        
             lowerName.contains("bundle") ||
-            lowerName.contains("edition") || // Evita "Deluxe Edition" como nome de jogo
+            lowerName.contains("edition") ||
             lowerName.contains("season pass")) {     
             return false;
         }
