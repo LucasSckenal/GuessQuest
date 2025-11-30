@@ -268,11 +268,11 @@
     -fx-border-width: 3;
     -fx-text-fill: #555;
     -fx-font-family: 'Press Start 2P';
-    -fx-font-size: 12px;
+    -fx-font-size: 16px;
     -fx-cursor: hand;
-    -fx-pref-width: 180;
+    -fx-pref-width: 220;
     -fx-pref-height: 50;
-    -fx-alignment: CENTER_LEFT;
+    -fx-alignment: JUSTIFY;
     -fx-padding: 10;
 }
 
