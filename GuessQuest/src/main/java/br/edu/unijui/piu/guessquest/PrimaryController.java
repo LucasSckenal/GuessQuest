@@ -50,7 +50,6 @@ public class PrimaryController {
     public void initialize() {
         setupNameInput();
         setupAudio();
-        setupDifficultyBlink();
         startArcadeAnimations();
 
         // Estado Inicial: Apenas Tela de Nome visível
@@ -200,29 +199,6 @@ public class PrimaryController {
         slot4.setOpacity(1.0);
     }
 
-    private void setupDifficultyBlink() {
-        difficultyGroup.selectedToggleProperty().addListener((obs, oldVal, newVal) -> {
-            if (oldVal != null)
-                ((Node) oldVal).setOpacity(1.0);
-            if (newVal != null) {
-                startDiffBlink((Node) newVal);
-                SoundManager.getInstance().playSound("click.wav");
-            }
-        });
-        if (difficultyGroup.getSelectedToggle() != null)
-            startDiffBlink((Node) difficultyGroup.getSelectedToggle());
-    }
-
-    private void startDiffBlink(Node node) {
-        if (activeDifficultyBlink != null)
-            activeDifficultyBlink.stop();
-        activeDifficultyBlink = new FadeTransition(Duration.seconds(0.15), node);
-        activeDifficultyBlink.setFromValue(1.0);
-        activeDifficultyBlink.setToValue(0.4);
-        activeDifficultyBlink.setCycleCount(Animation.INDEFINITE);
-        activeDifficultyBlink.setAutoReverse(true);
-        activeDifficultyBlink.play();
-    }
 
     private void setupAudio() {
         SoundManager sound = SoundManager.getInstance();

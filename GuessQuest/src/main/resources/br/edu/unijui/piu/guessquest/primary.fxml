@@ -10,7 +10,7 @@
         <ToggleGroup fx:id="difficultyGroup" />
     </fx:define>
 
-    <BorderPane styleClass="arcade-container" maxWidth="900" maxHeight="700" pickOnBounds="false">
+    <BorderPane styleClass="arcade-container" maxWidth="900" maxHeight="800" pickOnBounds="false">
         
         <top>
             <VBox alignment="CENTER" spacing="5" style="-fx-padding: 40 0 0 0;">
@@ -23,7 +23,7 @@
             <StackPane>
                 <VBox fx:id="screenNameInput" alignment="CENTER" spacing="40">
                     <VBox alignment="CENTER" spacing="15">
-                        <Label text="ENTER INITIALS" styleClass="label-retro" style="-fx-font-size: 14px;"/>
+                        <Label text="ENTER INITIALS" styleClass="label-retro" style="-fx-font-size: 20px;"/>
                         
                         <StackPane>
                             <TextField fx:id="nameField" opacity="0" maxWidth="280" maxHeight="50"/>
@@ -88,7 +88,10 @@
                     <Button text="OPTIONS" onAction="#goToSettings" styleClass="btn-leaderboard"/> 
                     <Button text="EXIT" onAction="#exitApp" styleClass="btn-exit"/>
                 </HBox>
-                <Label text="CREDITS: 99" style="-fx-text-fill: #444; -fx-font-size: 10px;"/>
+
+                <VBox alignment="CENTER" spacing="10">
+                    <Label text="v1.5 STYLE REFINING" style="-fx-text-fill: #666; -fx-font-size: 15px;" />
+                </VBox>
             </VBox>
         </bottom>
 

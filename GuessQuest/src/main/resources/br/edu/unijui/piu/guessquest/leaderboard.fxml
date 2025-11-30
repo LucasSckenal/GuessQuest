@@ -12,7 +12,7 @@
 
     <VBox styleClass="crt-overlay" />
 
-    <BorderPane styleClass="arcade-container" maxWidth="700" maxHeight="600">
+    <BorderPane styleClass="arcade-container" maxWidth="900" maxHeight="800">
 
         <top>
             <VBox alignment="CENTER" spacing="20">
@@ -26,7 +26,6 @@
                   spacing="18"
                   alignment="CENTER"
                   styleClass="leaderboard-list">
-                <!-- CORREÇÃO: Padding deve ser definido como um elemento Insets -->
                 <padding>
                     <Insets top="20" right="20" bottom="20" left="20" />
                 </padding>
@@ -35,7 +34,6 @@
 
         <bottom>
             <VBox alignment="CENTER" spacing="15">
-                <!-- CORREÇÃO: Padding aqui também -->
                 <padding>
                     <Insets top="10" right="10" bottom="10" left="10" />
                 </padding>

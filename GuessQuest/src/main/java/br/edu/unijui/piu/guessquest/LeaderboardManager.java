@@ -63,7 +63,6 @@ public class LeaderboardManager {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                // Pula linhas vazias
                 if (line.trim().isEmpty()) continue;
 
                 String[] parts = line.split(";");

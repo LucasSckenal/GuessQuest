@@ -55,7 +55,7 @@ public class LeaderboardController {
 
             if (index == 0) {
                 Label crown = new Label("👑");
-                crown.setStyle("-fx-font-size: 26px;");
+                crown.setStyle("-fx-font-size: 36px; -fx-text-fill: gold;");
                 line.getChildren().addAll(crown, name, value);
             } else {
                 line.getChildren().addAll(name, value);
