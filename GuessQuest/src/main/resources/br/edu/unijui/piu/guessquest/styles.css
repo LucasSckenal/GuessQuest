@@ -1,4 +1,6 @@
-/* Fonte principal clássica arcade */
+/* =========================================
+   FONTE E GERAL
+   ========================================= */
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
 .root {
@@ -17,14 +19,15 @@
     -fx-effect: dropshadow(three-pass-box, rgba(255, 0, 255, 0.6), 25, 0.25, 0, 0);
 }
 
-/* Título principal com efeito neon e leve brilho */
+/* =========================================
+   TEXTOS E TÍTULOS
+   ========================================= */
 .title-text {
     -fx-font-size: 42px;
     -fx-text-fill: linear-gradient(to bottom, #00eaff, #0091ff);
     -fx-effect: dropshadow(gaussian, rgba(0, 200, 255, 0.8), 12, 0.3, 0, 0);
 }
 
-/* Subtítulo / título de pergunta */
 .question-title {
     -fx-font-size: 28px;
     -fx-text-fill: linear-gradient(to bottom, #ff33ff, #cc00cc);
@@ -32,13 +35,13 @@
     -fx-padding: 0 0 14 0;
 }
 
-/* Textos gerais refinados */
 .label-retro, .info-text {
     -fx-text-fill: #efefef;
     -fx-font-size: 17px;
     -fx-opacity: 0.9;
 }
 
+/* Cores específicas de texto (Restauradas) */
 .info-text-red {
     -fx-text-fill: #ff4d4d;
 }
@@ -47,7 +50,20 @@
     -fx-text-fill: #ffe066;
 }
 
-/* Inputs com visual de terminal CRT */
+.blink-text {
+    -fx-text-fill: #ffff55;
+    -fx-font-size: 18px;
+}
+
+.feedback-text {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(one-pass-box, black, 4, 0.6, 0, 0);
+}
+
+/* =========================================
+   CONTROLES DE FORMULÁRIO (INPUTS/RADIO)
+   ========================================= */
 .input-retro {
     -fx-background-color: #0c0c0c;
     -fx-text-fill: #39ff14;
@@ -59,7 +75,6 @@
     -fx-effect: dropshadow(gaussian, rgba(0,255,0,0.25), 5, 0.2, 0, 0);
 }
 
-/* Radio retrô */
 .radio-retro {
     -fx-text-fill: #e5e5e5;
     -fx-font-size: 15px;
@@ -73,7 +88,62 @@
     -fx-background-color: #00ff44;
 }
 
-/* Botões principais com neon e animação de hover */
+/* =========================================
+   PAINEL DE VOLUME (Novo)
+   ========================================= */
+.volume-panel {
+    -fx-background-color: rgba(255, 255, 255, 0.05);
+    -fx-border-color: #444;
+    -fx-border-width: 2;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 15;
+    -fx-max-width: 400;
+}
+
+.icon-btn {
+    -fx-font-size: 28px;
+    -fx-text-fill: #00eaff;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0, 234, 255, 0.4), 8, 0.4, 0, 0);
+    -fx-padding: 0 5 0 0;
+}
+.icon-btn:hover {
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+    -fx-text-fill: #ffffff;
+}
+.icon-muted {
+    -fx-text-fill: #ff3333;
+    -fx-opacity: 0.5;
+    -fx-effect: none;
+}
+
+.retro-slider .track {
+    -fx-background-color: #333;
+    -fx-background-radius: 5;
+    -fx-pref-height: 8;
+}
+.retro-slider .thumb {
+    -fx-background-color: #00ff44;
+    -fx-border-color: #ffffff;
+    -fx-border-width: 2;
+    -fx-border-radius: 50%;
+    -fx-background-radius: 50%;
+    -fx-pref-width: 18;
+    -fx-pref-height: 18;
+    -fx-effect: dropshadow(gaussian, rgba(0, 255, 68, 0.6), 8, 0.4, 0, 0);
+    -fx-cursor: hand;
+}
+.retro-slider:hover .thumb {
+    -fx-background-color: #ccffcc;
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+}
+
+/* =========================================
+   BOTÕES GERAIS (Menu)
+   ========================================= */
 .btn-start, .btn-leaderboard {
     -fx-background-color: linear-gradient(to bottom, #00cc44, #009933);
     -fx-text-fill: white;
@@ -91,13 +161,11 @@
     -fx-effect: dropshadow(gaussian, rgba(0,255,150,0.5), 15, 0.3, 0, 0);
 }
 
-/* Leaderboard diferenciado */
 .btn-leaderboard {
     -fx-background-color: linear-gradient(to bottom, #0066ff, #0044aa);
     -fx-border-color: #3399ff;
 }
 
-/* Botão de sair */
 .btn-exit {
     -fx-background-color: linear-gradient(to bottom, #aa0000, #660000);
     -fx-text-fill: white;
@@ -112,7 +180,9 @@
     -fx-background-color: linear-gradient(to bottom, #ff0000, #990000);
 }
 
-/* Botões do jogo */
+/* =========================================
+   ELEMENTOS DE JOGO (Restaurados)
+   ========================================= */
 .game-button {
     -fx-background-color: #141414;
     -fx-text-fill: #e6e6e6;
@@ -139,7 +209,6 @@
     -fx-border-color: #ff3333;
 }
 
-/* Moldura da imagem */
 .image-frame {
     -fx-border-color: #cccccc;
     -fx-border-width: 3;
@@ -148,7 +217,35 @@
     -fx-border-radius: 8;
 }
 
-/* CRT scanlines melhoradas */
+/* =========================================
+   ELEMENTOS DE LEADERBOARD
+   ========================================= */
+.leaderboard-row {
+    -fx-background-color: rgba(255, 255, 255, 0.04);
+    -fx-padding: 12 25;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(255,255,255,0.15), 8, 0.2, 0, 0);
+}
+
+.rank-1 { -fx-text-fill: #ffe100; }
+.rank-2 { -fx-text-fill: #cfcfcf; }
+.rank-3 { -fx-text-fill: #d67b00; }
+.rank-others { -fx-text-fill: #00ffcc; }
+
+.rank-name {
+    -fx-font-size: 24px;
+    -fx-font-family: 'Press Start 2P';
+}
+
+.rank-score {
+    -fx-font-size: 24px;
+    -fx-font-family: 'Press Start 2P';
+}
+
+/* =========================================
+   OUTROS
+   ========================================= */
 .crt-overlay {
     -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, rgba(0,0,0,0) 50%, rgba(0,0,0,0.22) 50%);
     -fx-background-size: 100% 3px;
@@ -156,19 +253,6 @@
     -fx-mouse-transparent: true;
 }
 
-/* Texto piscante */
-.blink-text {
-    -fx-text-fill: #ffff55;
-    -fx-font-size: 18px;
-}
-
-.feedback-text {
-    -fx-font-size: 22px;
-    -fx-font-weight: bold;
-    -fx-effect: dropshadow(one-pass-box, black, 4, 0.6, 0, 0);
-}
-
-/* Alert personalizado */
 .arcade-alert {
     -fx-background-color: #1b1b1b;
     -fx-border-color: #ff00ff;
@@ -182,40 +266,4 @@
 .arcade-alert .content {
     -fx-text-fill: #00ff66;
     -fx-font-size: 14px;
-}
-
-/* Linha do ranking com leve brilho */
-.leaderboard-row {
-    -fx-background-color: rgba(255, 255, 255, 0.04);
-    -fx-padding: 12 25;
-    -fx-background-radius: 10;
-    -fx-border-radius: 10;
-    -fx-effect: dropshadow(gaussian, rgba(255,255,255,0.15), 8, 0.2, 0, 0);
-    -fx-opacity: 0;
-    -fx-translate-y: 20;
-    -fx-animation: fadeInUp 0.5s ease forwards;
-}
-
-/* Animação de subida, estilo fliperama */
-@keyframes fadeInUp {
-    from { -fx-opacity: 0; -fx-translate-y: 20; }
-    to   { -fx-opacity: 1; -fx-translate-y: 0; }
-}
-
-/* Cores distintas por posição */
-.rank-1 { -fx-text-fill: #ffe100; } /* ouro */
-.rank-2 { -fx-text-fill: #cfcfcf; } /* prata */
-.rank-3 { -fx-text-fill: #d67b00; } /* bronze */
-.rank-others { -fx-text-fill: #00ffcc; }
-
-/* Nome */
-.rank-name {
-    -fx-font-size: 24px;
-    -fx-font-family: 'Press Start 2P';
-}
-
-/* Score */
-.rank-score {
-    -fx-font-size: 24px;
-    -fx-font-family: 'Press Start 2P';
 }

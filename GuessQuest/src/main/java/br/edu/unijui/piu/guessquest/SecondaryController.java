@@ -28,11 +28,12 @@ public class SecondaryController {
     // Mantemos page_size=40 para ter um pool grande de alternativas e evitar repetição
     private static final String API_URL_TEMPLATE = "https://api.rawg.io/api/games?key=%s&ordering=-added&metacritic=%s&page_size=40&page=%d"; 
 
-    // NOVO: Conjunto estático para armazenar nomes de jogos já usados nesta sessão
+    // Conjunto estático para armazenar nomes de jogos já usados nesta sessão
     private static final Set<String> gamesPlayedThisSession = new HashSet<>();
 
     private static final Set<String> INVALID_EXACT_NAMES = new HashSet<>();
     static {
+        // Plataformas e lojas
         INVALID_EXACT_NAMES.add("PC");
         INVALID_EXACT_NAMES.add("PlayStation");
         INVALID_EXACT_NAMES.add("Xbox");
@@ -41,6 +42,12 @@ public class SecondaryController {
         INVALID_EXACT_NAMES.add("Linux");
         INVALID_EXACT_NAMES.add("Android");
         INVALID_EXACT_NAMES.add("iOS");
+        INVALID_EXACT_NAMES.add("Steam");
+        INVALID_EXACT_NAMES.add("Ubisoft Connect");
+        INVALID_EXACT_NAMES.add("GOG");
+        INVALID_EXACT_NAMES.add("Epic Games");
+        
+        // Tags e Gêneros comuns que vazam
         INVALID_EXACT_NAMES.add("Singleplayer");
         INVALID_EXACT_NAMES.add("Multiplayer");
         INVALID_EXACT_NAMES.add("Co-op");
@@ -63,6 +70,14 @@ public class SecondaryController {
         INVALID_EXACT_NAMES.add("Educational");
         INVALID_EXACT_NAMES.add("Card");
         INVALID_EXACT_NAMES.add("Massively Multiplayer");
+        INVALID_EXACT_NAMES.add("Anime");
+        INVALID_EXACT_NAMES.add("Comedy");
+        INVALID_EXACT_NAMES.add("Post-apocalyptic");
+        INVALID_EXACT_NAMES.add("Space");
+        INVALID_EXACT_NAMES.add("Zombies");
+        INVALID_EXACT_NAMES.add("Horror");
+        INVALID_EXACT_NAMES.add("Survival");
+        INVALID_EXACT_NAMES.add("Open World");
     }
 
     @FXML private Label lblPhase;
@@ -251,11 +266,11 @@ public class SecondaryController {
         if (win) {
             lblFeedback.setText("PARABÉNS! VOCÊ ZEROU!");
             lblFeedback.setStyle("-fx-text-fill: gold;");
-            SoundManager.getInstance().playSound("win.mp3"); 
+            SoundManager.getInstance().playSound("win.wav"); 
         } else {
             lblFeedback.setText("GAME OVER");
             lblFeedback.setStyle("-fx-text-fill: red;");
-            SoundManager.getInstance().playSound("gameover.mp3");
+            SoundManager.getInstance().playSound("gameover.wav");
         }
         
         new java.util.Timer().schedule(new java.util.TimerTask() {
@@ -306,86 +321,126 @@ public class SecondaryController {
         List<String> options = new ArrayList<>();
     }
 
+    // Classe auxiliar para manter nome e imagem juntos
+    private static class GameCandidate {
+        String name;
+        String image;
+        
+        GameCandidate(String n, String i) {
+            this.name = n;
+            this.image = i;
+        }
+    }
+
     private GameData parseJsonManually(String json) {
         GameData data = new GameData();
-        List<String> namesFound = new ArrayList<>();
-        List<String> imagesFound = new ArrayList<>();
+        List<GameCandidate> candidates = new ArrayList<>();
 
+        // REGEX ESTRITO: 
+        // 1. Procura "slug": "..." seguido de "name": "..."
+        // 2. [^\\{\\[]*? -> ESSENCIAL: Garante que NÃO entra em chaves { } ou colchetes [ ] aninhados.
+        //    Isso filtra automaticamente tags, gêneros e plataformas que são objetos dentro de listas.
         Pattern gamePattern = Pattern.compile("\"slug\":\"(?<slug>[^\"]+)\"[^\\{\\[]*?\"name\":\"(?<name>[^\"]+)\"");
         Matcher matcher = gamePattern.matcher(json);
 
+        // Lista de intervalos onde encontramos jogos (para buscar imagem depois)
+        List<Integer> matchEnds = new ArrayList<>();
+        List<String> tempNames = new ArrayList<>();
+        List<String> tempSlugs = new ArrayList<>();
+
         while (matcher.find()) {
-            String name = unescapeJava(matcher.group("name"));
-            String slug = matcher.group("slug");
-            
-            if (isValidGameName(name, slug)) {
-                namesFound.add(name);
-            }
+            tempSlugs.add(matcher.group("slug"));
+            tempNames.add(unescapeJava(matcher.group("name")));
+            matchEnds.add(matcher.end());
         }
 
-        Pattern imgPattern = Pattern.compile("\"background_image\":\"(?<url>[^\"]+)\"");
-        Matcher imgMatcher = imgPattern.matcher(json);
-        while (imgMatcher.find()) {
-            imagesFound.add(unescapeJava(imgMatcher.group("url")));
+        // Processa cada match encontrado
+        for (int i = 0; i < tempNames.size(); i++) {
+            String name = tempNames.get(i);
+            String slug = tempSlugs.get(i);
+            int currentEnd = matchEnds.get(i);
+            
+            // Define o limite de busca da imagem: até o início do próximo jogo ou fim do arquivo
+            int limit = (i < matchEnds.size() - 1) ? matchEnds.get(i+1) : json.length();
+            // Limite de segurança para não varrer o JSON inteiro se algo der errado
+            if (limit - currentEnd > 2000) limit = currentEnd + 2000; 
+
+            if (isValidGameName(name, slug)) {
+                // Busca a imagem APENAS no intervalo deste jogo
+                String image = extractImageInRange(json, currentEnd, limit);
+                candidates.add(new GameCandidate(name, image));
+            }
         }
         
-        if (namesFound.isEmpty()) {
+        if (candidates.isEmpty()) {
             return data;
         }
 
-        // CORREÇÃO: Removemos jogos que já foram jogados nessa sessão da lista de candidatos a "correto"
-        List<String> candidates = new ArrayList<>(namesFound);
-        candidates.removeIf(gamesPlayedThisSession::contains);
-
-        // Se todos os jogos da página já foram jogados (raro), relaxamos a regra e usamos qualquer um
-        if (candidates.isEmpty()) {
-            candidates = namesFound; 
-        }
-
-        // CORREÇÃO CRÍTICA: Usamos candidates.size() em vez de limitar a 4. 
-        // Isso permite pegar jogos do final da lista de 40 itens, garantindo variedade.
-        int correctIndex = random.nextInt(candidates.size());
-        data.correctName = candidates.get(correctIndex);
-        
-        // Precisamos achar o índice original para pegar a imagem correta
-        int originalIndex = namesFound.indexOf(data.correctName);
-        
-        if (originalIndex < imagesFound.size()) {
-            data.imageUrl = imagesFound.get(originalIndex);
-        } else if (!imagesFound.isEmpty()) {
-            data.imageUrl = imagesFound.get(0);
-        }
-
-        data.options.add(data.correctName);
-        
-        // Seleciona opções erradas do POOL INTEIRO de nomes encontrados
-        // Shuffle na lista completa garante que não pegaremos sempre os vizinhos imediatos
-        List<String> wrongOptionsPool = new ArrayList<>(namesFound);
-        wrongOptionsPool.remove(data.correctName); // Tira a correta
-        Collections.shuffle(wrongOptionsPool);
-        
-        // Pega as 3 primeiras após embaralhar
-        for (String wrongOption : wrongOptionsPool) {
-            if (data.options.size() < 4) {
-                data.options.add(wrongOption);
-            } else {
-                break;
+        // Filtra jogos já jogados
+        List<GameCandidate> available = new ArrayList<>();
+        for (GameCandidate cand : candidates) {
+            if (!gamesPlayedThisSession.contains(cand.name)) {
+                available.add(cand);
             }
+        }
+
+        if (available.isEmpty()) available = candidates; 
+
+        // Sorteia o jogo CORRETO
+        int correctIndex = random.nextInt(available.size());
+        GameCandidate correctGame = available.get(correctIndex);
+        
+        data.correctName = correctGame.name;
+        data.imageUrl = correctGame.image;
+        data.options.add(correctGame.name);
+
+        // Escolhe opções ERRADAS (podem ser de qualquer candidato válido da página)
+        List<String> wrongPool = new ArrayList<>();
+        for (GameCandidate cand : candidates) {
+            if (!cand.name.equals(correctGame.name)) {
+                wrongPool.add(cand.name);
+            }
+        }
+        Collections.shuffle(wrongPool);
+        
+        for (int k = 0; k < 3 && k < wrongPool.size(); k++) {
+            data.options.add(wrongPool.get(k));
         }
         
         Collections.shuffle(data.options);
         return data;
     }
 
+    private String extractImageInRange(String json, int start, int end) {
+        String snippet = json.substring(start, Math.min(end, json.length()));
+        // Busca simples pela chave de imagem neste pedaço
+        int idx = snippet.indexOf("\"background_image\":\"");
+        if (idx != -1) {
+            int urlStart = idx + 20; // tamanho de "background_image":"
+            int urlEnd = snippet.indexOf("\"", urlStart);
+            if (urlEnd != -1) {
+                return unescapeJava(snippet.substring(urlStart, urlEnd));
+            }
+        }
+        return null;
+    }
+
     private boolean isValidGameName(String name, String slug) {
         if (name == null || name.trim().isEmpty()) return false;
+        
+        // 1. BLOQUEIO IMEDIATO DE CIRÍLICO/RUSSO
+        if (name.matches(".*\\p{InCyrillic}.*")) return false;
+
+        // 2. Filtro de nomes exatos proibidos (agora expandido)
         if (INVALID_EXACT_NAMES.contains(name)) return false; 
         
+        // 3. Filtro de lixo (caracteres estranhos mas sem acentos comuns)
         if (name.matches(".*[^\\x00-\\x7F\\p{L}\\p{N}\\s\\p{P}].*") && !name.matches(".*[áéíóúãõçÁÉÍÓÚÃÕÇ].*")) {
-             if (name.matches(".*\\p{InCyrillic}.*")) return false;
+             return false;
         }
         
         String lowerName = name.toLowerCase();
+        // 4. Palavras-chave proibidas
         if (lowerName.contains("playstation") || 
             lowerName.contains("xbox") || 
             lowerName.equals("pc") ||
@@ -393,7 +448,9 @@ public class SecondaryController {
             lowerName.contains("dlc") ||        
             lowerName.contains("bundle") ||
             lowerName.contains("edition") ||
-            lowerName.contains("season pass")) {     
+            lowerName.contains("season pass") ||
+            lowerName.contains("patch") ||
+            lowerName.contains("mod")) {     
             return false;
         }
         
