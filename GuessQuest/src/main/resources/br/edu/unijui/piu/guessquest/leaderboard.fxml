@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.image.ImageView?>
+
+<StackPane xmlns="http://javafx.com/javafx/8.0.171"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="br.edu.unijui.piu.guessquest.LeaderboardController"
+           styleClass="root arcade-bezel">
+
+    <VBox styleClass="crt-overlay" />
+
+    <BorderPane styleClass="arcade-container" maxWidth="700" maxHeight="600">
+
+        <top>
+            <VBox alignment="CENTER" spacing="20">
+                <Label text="RANKING" styleClass="title-text" style="-fx-font-size: 48px;" />
+                <Label text="TOP 5 PLAYERS" styleClass="label-retro" style="-fx-text-fill: #00ffff;" />
+            </VBox>
+        </top>
+
+        <center>
+            <VBox fx:id="scoreBox"
+                  spacing="18"
+                  alignment="CENTER"
+                  styleClass="leaderboard-list">
+                <!-- CORREÇÃO: Padding deve ser definido como um elemento Insets -->
+                <padding>
+                    <Insets top="20" right="20" bottom="20" left="20" />
+                </padding>
+            </VBox>
+        </center>
+
+        <bottom>
+            <VBox alignment="CENTER" spacing="15">
+                <!-- CORREÇÃO: Padding aqui também -->
+                <padding>
+                    <Insets top="10" right="10" bottom="10" left="10" />
+                </padding>
+                
+                <Button text="VOLTAR"
+                        onAction="#goBack"
+                        prefWidth="220"
+                        styleClass="btn-exit"
+                        style="-fx-font-size: 20px;" />
+            </VBox>
+        </bottom>
+
+    </BorderPane>
+
+</StackPane>

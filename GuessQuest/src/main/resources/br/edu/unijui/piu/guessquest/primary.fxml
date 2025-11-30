@@ -1,71 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.RadioButton?>
-<?import javafx.scene.control.Slider?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.ToggleGroup?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<StackPane xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="br.edu.unijui.piu.guessquest.PrimaryController" styleClass="root">
-    
+<StackPane xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="br.edu.unijui.piu.guessquest.PrimaryController" styleClass="root arcade-bezel">
+
+    <!-- Efeito CRT -->
     <VBox styleClass="crt-overlay" />
-    
+
     <BorderPane styleClass="arcade-container">
+
+        <!-- TOPO -->
         <top>
-            <VBox alignment="CENTER" spacing="30">
-                <Label text="GUESS QUEST" styleClass="title-text" style="-fx-font-size: 60px;" />
-                <Label text="PRESS START" styleClass="blink-text" style="-fx-font-size: 24px;" />
+            <VBox alignment="CENTER" spacing="25">
+                <Label text="GUESS QUEST" styleClass="title-text" style="-fx-font-size: 64px;" />
+                <Label text="PRESS START" styleClass="blink-text" style="-fx-font-size: 26px;" />
             </VBox>
         </top>
-        
+
+        <!-- CENTRO / MENU PRINCIPAL -->
         <center>
-            <VBox alignment="CENTER" spacing="30" styleClass="menu-box">
-                <VBox alignment="CENTER" spacing="10">
-                    <Label text="INSIRA SEU NOME" styleClass="label-retro" style="-fx-font-size: 20px;" />
-                    <TextField fx:id="nameField" promptText="AAAA" maxWidth="400" alignment="CENTER" styleClass="input-retro" style="-fx-font-size: 30px;" />
+            <VBox alignment="CENTER" spacing="35" styleClass="menu-box">
+
+                <!-- BOX: NOME DO JOGADOR -->
+                <VBox alignment="CENTER" spacing="12" styleClass="menu-section">
+                    <Label text="INSIRA SEU NOME" styleClass="label-retro" style="-fx-font-size: 22px;" />
+                    <TextField fx:id="nameField" promptText="AAAA" maxWidth="420" alignment="CENTER" styleClass="input-retro" style="-fx-font-size: 32px;" />
                 </VBox>
 
-                <VBox alignment="CENTER" spacing="15">
-                    <Label text="DIFICULDADE" styleClass="label-retro" style="-fx-font-size: 20px;" />
-                    <HBox alignment="CENTER" spacing="40">
-                        <RadioButton fx:id="radioNormal" text="NORMAL" selected="true" styleClass="radio-retro" style="-fx-font-size: 18px;">
+                <!-- BOX: DIFICULDADE -->
+                <VBox alignment="CENTER" spacing="18" styleClass="menu-section">
+                    <Label text="DIFICULDADE" styleClass="label-retro" style="-fx-font-size: 22px;" />
+                    <HBox alignment="CENTER" spacing="50">
+                        <RadioButton fx:id="radioNormal" text="NORMAL" selected="true" styleClass="radio-retro" style="-fx-font-size: 20px;">
                             <toggleGroup>
                                 <ToggleGroup fx:id="difficultyGroup" />
                             </toggleGroup>
                         </RadioButton>
-                        <RadioButton fx:id="radioHard" text="DIFÍCIL" toggleGroup="$difficultyGroup" styleClass="radio-retro" style="-fx-font-size: 18px;"/>
-                        <RadioButton fx:id="radioSouls" text="SOULS" toggleGroup="$difficultyGroup" styleClass="radio-retro" style="-fx-font-size: 18px;"/>
+                        <RadioButton fx:id="radioHard" text="DIFÍCIL" toggleGroup="$difficultyGroup" styleClass="radio-retro" style="-fx-font-size: 20px;" />
+                        <RadioButton fx:id="radioSouls" text="SOULS" toggleGroup="$difficultyGroup" styleClass="radio-retro" style="-fx-font-size: 20px;" />
                     </HBox>
                 </VBox>
 
-                <!-- Área de Controle de Volume -->
-                <HBox alignment="CENTER" spacing="40" style="-fx-background-color: rgba(0,0,0,0.5); -fx-padding: 10; -fx-background-radius: 10;">
-                    <VBox alignment="CENTER" spacing="5">
-                        <Label text="MUSIC" styleClass="label-retro" style="-fx-font-size: 12px;"/>
-                        <Slider fx:id="volumeMusicSlider" min="0" max="100" value="50" prefWidth="150" />
+                <!-- BOX: VOLUME -->
+                <HBox alignment="CENTER" spacing="45" styleClass="volume-panel">
+                    <VBox alignment="CENTER" spacing="6">
+                        <Label text="MUSIC" styleClass="label-retro" style="-fx-font-size: 14px;" />
+                        <Slider fx:id="volumeMusicSlider" min="0" max="100" value="50" prefWidth="170" />
                     </VBox>
-                    <VBox alignment="CENTER" spacing="5">
-                        <Label text="SFX" styleClass="label-retro" style="-fx-font-size: 12px;"/>
-                        <Slider fx:id="volumeSfxSlider" min="0" max="100" value="50" prefWidth="150" />
+                    <VBox alignment="CENTER" spacing="6">
+                        <Label text="SFX" styleClass="label-retro" style="-fx-font-size: 14px;" />
+                        <Slider fx:id="volumeSfxSlider" min="0" max="100" value="50" prefWidth="170" />
                     </VBox>
                 </HBox>
 
-                <VBox alignment="CENTER" spacing="20">
-                    <Button text="JOGAR" onAction="#startGame" styleClass="btn-start" prefWidth="300" style="-fx-font-size: 24px;" />
-                    <Button text="RANKING" onAction="#showLeaderboard" styleClass="btn-leaderboard" prefWidth="300" style="-fx-font-size: 20px;" />
-                    <Button text="SAIR" onAction="#exitApp" styleClass="btn-exit" prefWidth="200" style="-fx-font-size: 18px;" />
+                <!-- BOTÕES -->
+                <VBox alignment="CENTER" spacing="25">
+                    <Button text="JOGAR" onAction="#startGame" styleClass="btn-start" prefWidth="320" style="-fx-font-size: 26px;" />
+                    <Button text="RANKING" onAction="#showLeaderboard" styleClass="btn-leaderboard" prefWidth="320" style="-fx-font-size: 22px;" />
+                    <Button text="SAIR" onAction="#exitApp" styleClass="btn-exit" prefWidth="220" style="-fx-font-size: 20px;" />
                 </VBox>
             </VBox>
         </center>
-        
+
+        <!-- RODAPÉ -->
         <bottom>
             <VBox alignment="CENTER" spacing="10">
-               <Label text="v1.1 AUDIO UPDATE" style="-fx-text-fill: #555; -fx-font-size: 14px;" />
+                <Label text="v1.2 ARCADE BEZEL" style="-fx-text-fill: #666; -fx-font-size: 15px;" />
             </VBox>
         </bottom>
     </BorderPane>

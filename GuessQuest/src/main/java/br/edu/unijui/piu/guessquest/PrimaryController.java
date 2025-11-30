@@ -1,7 +1,6 @@
 package br.edu.unijui.piu.guessquest;
 
 import java.io.IOException;
-import java.util.List;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -14,45 +13,52 @@ import javafx.scene.layout.Region;
 
 public class PrimaryController {
 
-    @FXML private TextField nameField;
-    @FXML private ToggleGroup difficultyGroup;
-    @FXML private RadioButton radioNormal;
-    @FXML private RadioButton radioHard;
-    @FXML private RadioButton radioSouls;
-    
-    // Sliders de Volume
-    @FXML private Slider volumeMusicSlider;
-    @FXML private Slider volumeSfxSlider;
+    @FXML
+    private TextField nameField;
+    @FXML
+    private ToggleGroup difficultyGroup;
+    @FXML
+    private RadioButton radioNormal;
+    @FXML
+    private RadioButton radioHard;
+    @FXML
+    private RadioButton radioSouls;
+
+    @FXML
+    private Slider volumeMusicSlider;
+    @FXML
+    private Slider volumeSfxSlider;
 
     @FXML
     public void initialize() {
-        nameField.textProperty().addListener((observable, oldValue, newValue) -> {
+        // Limita nome a 4 letras e deixa tudo maiúsculo
+        nameField.textProperty().addListener((obs, oldValue, newValue) -> {
             if (newValue.length() > 4) {
                 nameField.setText(oldValue);
+            } else {
+                nameField.setText(newValue.toUpperCase());
             }
-            nameField.setText(nameField.getText().toUpperCase());
         });
 
-        // Configuração inicial dos sliders
+        // Config Inicial dos Sliders
         SoundManager sound = SoundManager.getInstance();
-        
         volumeMusicSlider.setValue(sound.getMusicVolume() * 100);
         volumeSfxSlider.setValue(sound.getSfxVolume() * 100);
 
-        // Listeners para atualizar volume em tempo real
-        volumeMusicSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
-            sound.setMusicVolume(newVal.doubleValue() / 100.0);
-        });
+        volumeMusicSlider.valueProperty()
+                .addListener((obs, oldVal, newVal) -> sound.setMusicVolume(newVal.doubleValue() / 100.0));
 
-        volumeSfxSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
-            sound.setSfxVolume(newVal.doubleValue() / 100.0);
-        });
+        volumeSfxSlider.valueProperty()
+                .addListener((obs, oldVal, newVal) -> sound.setSfxVolume(newVal.doubleValue() / 100.0));
     }
 
+    // -------------------------------
+    // INICIAR O JOGO
+    // -------------------------------
     @FXML
     private void startGame() throws IOException {
         String name = nameField.getText();
-        
+
         if (name.isEmpty()) {
             showAlert("ATENÇÃO", "INSIRA SEU NOME (MAX 4 CARACTERES)");
             return;
@@ -61,54 +67,63 @@ public class PrimaryController {
         GameState state = GameState.getInstance();
         state.setPlayerName(name);
 
-        if (radioNormal.isSelected()) state.setDifficulty(GameState.Difficulty.NORMAL);
-        else if (radioHard.isSelected()) state.setDifficulty(GameState.Difficulty.HARD);
-        else if (radioSouls.isSelected()) state.setDifficulty(GameState.Difficulty.SOULS);
+        if (radioNormal.isSelected())
+            state.setDifficulty(GameState.Difficulty.NORMAL);
+        else if (radioHard.isSelected())
+            state.setDifficulty(GameState.Difficulty.HARD);
+        else if (radioSouls.isSelected())
+            state.setDifficulty(GameState.Difficulty.SOULS);
 
         state.resetGame();
-        
-        // Toca um som de confirmação se quiser
+
         SoundManager.getInstance().playSound("correct.mp3");
 
+        // Mantém padrão do seu projeto:
         App.setRoot("secondary");
     }
-    
+
+    // -------------------------------
+    // ABRIR TELA DE LEADERBOARD
+    // -------------------------------
     @FXML
     private void showLeaderboard() {
-        List<LeaderboardManager.ScoreEntry> scores = LeaderboardManager.loadScores();
-        StringBuilder sb = new StringBuilder();
-        
-        if (scores.isEmpty()) {
-            sb.append("SEM RECORDES AINDA...\nSEJA O PRIMEIRO!");
-        } else {
-            sb.append("TOP 5 JOGADORES\n\n");
-            for (int i = 0; i < scores.size(); i++) {
-                sb.append(String.format("#%d  %s\n", i + 1, scores.get(i).toString()));
-            }
-        }
+        try {
+            SoundManager.getInstance().playSound("click.mp3"); 
 
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("HALL OF FAME");
-        alert.setHeaderText("RECORDES LOCAIS");
-        alert.setContentText(sb.toString());
-        alert.getDialogPane().getStylesheets().add(getClass().getResource("styles.css").toExternalForm());
-        alert.getDialogPane().getStyleClass().add("arcade-alert");
-        alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
-        alert.showAndWait();
+            // Troca tela usando seu App.setRoot()
+            App.setRoot("leaderboard");
+
+        } catch (Exception e) {
+            // DIAGNÓSTICO: Imprime o erro no console e mostra no alerta
+            e.printStackTrace();
+            
+            String causa = e.getCause() != null ? e.getCause().toString() : e.getMessage();
+            showAlert("ERRO CRÍTICO", "FALHA AO ABRIR RANKING:\n" + causa);
+        }
     }
 
+    // -------------------------------
+    // SAIR DO JOGO
+    // -------------------------------
     @FXML
     private void exitApp() {
         Platform.exit();
         System.exit(0);
     }
 
+    // -------------------------------
+    // ALERTA PERSONALIZADO
+    // -------------------------------
     private void showAlert(String header, String content) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle("SYSTEM ALERT");
         alert.setHeaderText(header);
         alert.setContentText(content);
-        alert.getDialogPane().getStylesheets().add(getClass().getResource("styles.css").toExternalForm());
+
+        alert.getDialogPane().getStylesheets().add(
+                getClass().getResource("styles.css").toExternalForm());
+        // Garante que o alerta expanda para mostrar a mensagem de erro completa
+        alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
         alert.showAndWait();
     }
 }

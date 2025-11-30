@@ -6,13 +6,14 @@ import java.util.List;
 
 public class LeaderboardManager {
     
-    // Salva na pasta do usuário (ex: C:\Users\SeuNome\guessquest_leaderboard.txt)
+    // Caminho do arquivo.
+    // ATENÇÃO: Verifique no console onde este caminho está apontando ao rodar!
     private static final String FILE_PATH = System.getProperty("user.home") + File.separator + "guessquest_leaderboard.txt";
     private static final int MAX_SCORES = 5;
 
     public static class ScoreEntry implements Comparable<ScoreEntry> {
-        String name;
-        int score;
+        public String name;
+        public int score;
 
         public ScoreEntry(String name, int score) {
             this.name = name;
@@ -21,7 +22,7 @@ public class LeaderboardManager {
 
         @Override
         public int compareTo(ScoreEntry o) {
-            return Integer.compare(o.score, this.score); // Decrescente
+            return Integer.compare(o.score, this.score); 
         }
         
         @Override
@@ -35,9 +36,8 @@ public class LeaderboardManager {
 
         List<ScoreEntry> scores = loadScores();
         scores.add(new ScoreEntry(name, score));
-        scores.sort(null); // Ordena natural (decrescente)
+        scores.sort(null); 
 
-        // Mantém apenas os top 5
         if (scores.size() > MAX_SCORES) {
             scores = scores.subList(0, MAX_SCORES);
         }
@@ -49,29 +49,44 @@ public class LeaderboardManager {
         List<ScoreEntry> list = new ArrayList<>();
         File file = new File(FILE_PATH);
 
+        // DEBUG: Mostra no console onde o jogo está procurando o arquivo
+        System.out.println("--- LEADERBOARD DEBUG ---");
+        System.out.println("Procurando arquivo em: " + FILE_PATH);
+
         if (!file.exists()) {
+            System.out.println("RESULTADO: Arquivo NAO encontrado neste local.");
             return list;
         }
         
+        System.out.println("RESULTADO: Arquivo encontrado! Lendo...");
+
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {
+                // Pula linhas vazias
+                if (line.trim().isEmpty()) continue;
+
                 String[] parts = line.split(";");
                 if (parts.length == 2) {
                     try {
-                        String savedName = parts[0];
-                        int savedScore = Integer.parseInt(parts[1]);
+                        // .trim() remove espaços em branco antes/depois que causam erro no parseInt
+                        String savedName = parts[0].trim();
+                        int savedScore = Integer.parseInt(parts[1].trim());
+                        
                         list.add(new ScoreEntry(savedName, savedScore));
-                    } catch (NumberFormatException ignored) {
-                        // Ignora linhas corrompidas
+                        System.out.println("Lido com sucesso: " + savedName + " - " + savedScore);
+
+                    } catch (NumberFormatException e) {
+                        System.err.println("Erro ao ler linha (numero invalido): " + line);
                     }
+                } else {
+                    System.err.println("Linha com formato invalido (precisa ser NOME;PONTOS): " + line);
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        // Garante ordenação
         list.sort(null);
         return list;
     }
