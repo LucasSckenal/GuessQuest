@@ -1,269 +1,333 @@
-/* =========================================
-   FONTE E GERAL
-   ========================================= */
+/* =================================================================================
+   1. CONFIGURAÇÕES GERAIS E O GABINETE (GLOBAL)
+   ================================================================================= */
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Verdana:wght@400;700&display=swap');
 
 .root {
-    -fx-background-color: #0d0d0f;
+    /* AQUI FICA A FOTO DA MÁQUINA DE FLIPERAMA */
+    -fx-background-image: url('arcade.jpg');
+    -fx-background-size: 100% 100%;
+    -fx-background-position: center;
+    -fx-background-repeat: no-repeat;
+
+    /* Fonte padrão caso não especifique outra */
     -fx-font-family: 'Press Start 2P', monospace;
 }
 
-/* Container principal com visual de gabinete arcade */
+/* Container Mágico: Empurra o conteúdo para dentro da tela preta da foto */
 .arcade-container {
-    -fx-background-color: #000000;
-    -fx-border-color: #ff00ff;
-    -fx-border-width: 4;
-    -fx-border-radius: 18;
-    -fx-background-radius: 18;
-    -fx-padding: 25;
-    -fx-effect: dropshadow(three-pass-box, rgba(255, 0, 255, 0.6), 25, 0.25, 0, 0);
+    -fx-background-color: transparent;
+
+    /* === AJUSTE DE MARGEM === 
+       Se o jogo não encaixar na tela da foto, mexa nestes números:
+       Ordem: Topo | Direita | Baixo | Esquerda */
+    -fx-padding: 85 115 80 115;
 }
 
-/* =========================================
-   TEXTOS E TÍTULOS
-   ========================================= */
+/* Efeito de linhas de TV (Scanlines) - Fica por cima de tudo */
+.crt-overlay {
+    -fx-background-color: linear-gradient(from 0% 0% to 0% 100%,
+            rgba(0, 0, 0, 0) 50%,
+            rgba(0, 0, 0, 0.25) 50%);
+    -fx-background-size: 100% 4px;
+    -fx-opacity: 0.3;
+    -fx-mouse-transparent: true;
+    /* Permite clicar através das linhas */
+}
+
+/* =================================================================================
+   2. ESTILO DO MENU PRINCIPAL (NEON / RETRO / HACKER)
+   ================================================================================= */
+
+/* Título GUESS QUEST */
 .title-text {
-    -fx-font-size: 42px;
-    -fx-text-fill: linear-gradient(to bottom, #00eaff, #0091ff);
-    -fx-effect: dropshadow(gaussian, rgba(0, 200, 255, 0.8), 12, 0.3, 0, 0);
-}
-
-.question-title {
-    -fx-font-size: 28px;
-    -fx-text-fill: linear-gradient(to bottom, #ff33ff, #cc00cc);
-    -fx-effect: dropshadow(gaussian, rgba(255, 0, 255, 0.6), 10, 0.3, 0, 0);
-    -fx-padding: 0 0 14 0;
-}
-
-.label-retro, .info-text {
-    -fx-text-fill: #efefef;
-    -fx-font-size: 17px;
-    -fx-opacity: 0.9;
-}
-
-/* Cores específicas de texto (Restauradas) */
-.info-text-red {
-    -fx-text-fill: #ff4d4d;
-}
-
-.info-text-yellow {
-    -fx-text-fill: #ffe066;
+    -fx-font-family: 'Press Start 2P';
+    -fx-font-size: 50px;
+    -fx-text-fill: linear-gradient(to bottom, #e0ffff, #00eaff);
+    -fx-effect: dropshadow(gaussian, rgba(0, 234, 255, 1.0), 25, 0.6, 0, 0);
 }
 
 .blink-text {
-    -fx-text-fill: #ffff55;
+    -fx-text-fill: #ffff00;
     -fx-font-size: 18px;
+    -fx-effect: dropshadow(one-pass-box, rgba(255, 255, 0, 0.6), 10, 0.5, 0, 0);
 }
 
-.feedback-text {
-    -fx-font-size: 22px;
-    -fx-font-weight: bold;
-    -fx-effect: dropshadow(one-pass-box, black, 4, 0.6, 0, 0);
+.label-retro {
+    -fx-text-fill: #cccccc;
+    -fx-font-size: 12px;
 }
 
-/* =========================================
-   CONTROLES DE FORMULÁRIO (INPUTS/RADIO)
-   ========================================= */
+/* Campo de Nome */
 .input-retro {
-    -fx-background-color: #0c0c0c;
-    -fx-text-fill: #39ff14;
-    -fx-border-color: #1aff00;
-    -fx-border-width: 2;
-    -fx-background-insets: 0;
-    -fx-font-family: 'Courier New', monospace;
-    -fx-font-size: 22px;
-    -fx-effect: dropshadow(gaussian, rgba(0,255,0,0.25), 5, 0.2, 0, 0);
-}
-
-.radio-retro {
-    -fx-text-fill: #e5e5e5;
-    -fx-font-size: 15px;
-}
-.radio-retro .radio {
     -fx-background-color: #000;
-    -fx-border-color: #777;
-    -fx-border-width: 2;
-}
-.radio-retro:selected .radio .dot {
-    -fx-background-color: #00ff44;
-}
-
-/* =========================================
-   PAINEL DE VOLUME (Novo)
-   ========================================= */
-.volume-panel {
-    -fx-background-color: rgba(255, 255, 255, 0.05);
-    -fx-border-color: #444;
-    -fx-border-width: 2;
-    -fx-border-radius: 10;
-    -fx-background-radius: 10;
-    -fx-padding: 15;
-    -fx-max-width: 400;
-}
-
-.icon-btn {
-    -fx-font-size: 28px;
-    -fx-text-fill: #00eaff;
-    -fx-cursor: hand;
-    -fx-effect: dropshadow(gaussian, rgba(0, 234, 255, 0.4), 8, 0.4, 0, 0);
-    -fx-padding: 0 5 0 0;
-}
-.icon-btn:hover {
-    -fx-scale-x: 1.1;
-    -fx-scale-y: 1.1;
-    -fx-text-fill: #ffffff;
-}
-.icon-muted {
-    -fx-text-fill: #ff3333;
-    -fx-opacity: 0.5;
-    -fx-effect: none;
-}
-
-.retro-slider .track {
-    -fx-background-color: #333;
-    -fx-background-radius: 5;
-    -fx-pref-height: 8;
-}
-.retro-slider .thumb {
-    -fx-background-color: #00ff44;
-    -fx-border-color: #ffffff;
-    -fx-border-width: 2;
-    -fx-border-radius: 50%;
-    -fx-background-radius: 50%;
-    -fx-pref-width: 18;
-    -fx-pref-height: 18;
-    -fx-effect: dropshadow(gaussian, rgba(0, 255, 68, 0.6), 8, 0.4, 0, 0);
-    -fx-cursor: hand;
-}
-.retro-slider:hover .thumb {
-    -fx-background-color: #ccffcc;
-    -fx-scale-x: 1.1;
-    -fx-scale-y: 1.1;
-}
-
-/* =========================================
-   BOTÕES GERAIS (Menu)
-   ========================================= */
-.btn-start, .btn-leaderboard {
-    -fx-background-color: linear-gradient(to bottom, #00cc44, #009933);
-    -fx-text-fill: white;
+    -fx-text-fill: #39ff14;
+    /* Verde */
+    -fx-border-color: #333;
+    -fx-border-width: 0 0 3 0;
     -fx-font-size: 20px;
-    -fx-border-color: #00ff66;
-    -fx-border-width: 2;
-    -fx-padding: 10 25;
-    -fx-cursor: hand;
-    -fx-background-radius: 12;
-    -fx-border-radius: 12;
-    -fx-effect: dropshadow(gaussian, rgba(0,255,100,0.3), 12, 0.2, 0, 0);
+    -fx-alignment: center;
 }
-.btn-start:hover, .btn-leaderboard:hover {
-    -fx-background-color: linear-gradient(to bottom, #00ff66, #00cc44);
-    -fx-effect: dropshadow(gaussian, rgba(0,255,150,0.5), 15, 0.3, 0, 0);
+
+/* Botões do Menu (Retangulares e Neon) */
+.btn-start,
+.btn-leaderboard,
+.btn-exit {
+    -fx-background-color: #000;
+    -fx-border-color: #00ff00;
+    -fx-border-width: 3;
+    -fx-text-fill: #00ff00;
+    -fx-font-size: 16px;
+    -fx-cursor: hand;
+    -fx-font-family: 'Press Start 2P';
+    -fx-padding: 10 20;
+}
+
+.btn-start:hover {
+    -fx-background-color: #00ff00;
+    -fx-text-fill: #000;
 }
 
 .btn-leaderboard {
-    -fx-background-color: linear-gradient(to bottom, #0066ff, #0044aa);
-    -fx-border-color: #3399ff;
+    -fx-border-color: #00eaff;
+    -fx-text-fill: #00eaff;
+}
+
+.btn-leaderboard:hover {
+    -fx-background-color: #00eaff;
+    -fx-text-fill: #000;
 }
 
 .btn-exit {
-    -fx-background-color: linear-gradient(to bottom, #aa0000, #660000);
-    -fx-text-fill: white;
     -fx-border-color: #ff3333;
-    -fx-border-width: 2;
-    -fx-font-size: 15px;
-    -fx-padding: 8 18;
-    -fx-background-radius: 10;
-    -fx-border-radius: 10;
+    -fx-text-fill: #ff3333;
 }
+
 .btn-exit:hover {
-    -fx-background-color: linear-gradient(to bottom, #ff0000, #990000);
+    -fx-background-color: #ff3333;
+    -fx-text-fill: #fff;
 }
 
-/* =========================================
-   ELEMENTOS DE JOGO (Restaurados)
-   ========================================= */
-.game-button {
-    -fx-background-color: #141414;
-    -fx-text-fill: #e6e6e6;
-    -fx-border-color: #4d7bff;
+/* =================================================================================
+   3. ESTILO DO JOGO - VISUAL TV SHOW (AZUL E DOURADO)
+   ================================================================================= */
+
+/* Esta classe define o fundo AZUL apenas DENTRO da tela */
+.tv-screen {
+    /* Degradê Azul Profundo */
+    -fx-background-color: linear-gradient(to bottom, #001a66 0%, #000033 100%);
+
+    /* Borda Dourada Interna */
+    -fx-border-color: #ffcc00;
     -fx-border-width: 3;
-    -fx-border-radius: 10;
-    -fx-background-radius: 10;
-    -fx-font-size: 15px;
-    -fx-padding: 14;
-    -fx-cursor: hand;
-    -fx-effect: dropshadow(gaussian, rgba(70,110,255,0.3), 10, 0.2, 0, 0);
-}
-.game-button:hover {
-    -fx-background-color: rgba(70,110,255,0.2);
-}
-
-.button-correct {
-    -fx-background-color: #009933;
-    -fx-border-color: #00ff55;
-}
-
-.button-wrong {
-    -fx-background-color: #aa0000;
-    -fx-border-color: #ff3333;
-}
-
-.image-frame {
-    -fx-border-color: #cccccc;
-    -fx-border-width: 3;
-    -fx-background-color: #030303;
-    -fx-background-radius: 8;
     -fx-border-radius: 8;
+    -fx-background-radius: 8;
+
+    /* Sombra interna para profundidade */
+    -fx-effect: inner-shadow(gaussian, rgba(0, 0, 0, 0.5), 20, 0, 0, 0);
 }
 
-/* =========================================
-   ELEMENTOS DE LEADERBOARD
-   ========================================= */
-.leaderboard-row {
-    -fx-background-color: rgba(255, 255, 255, 0.04);
-    -fx-padding: 12 25;
-    -fx-background-radius: 10;
-    -fx-border-radius: 10;
-    -fx-effect: dropshadow(gaussian, rgba(255,255,255,0.15), 8, 0.2, 0, 0);
+/* Barra Superior (Score, Vidas) */
+.hud-bar {
+    -fx-border-color: #ffcc00;
+    /* Linha dourada */
+    -fx-border-width: 0 0 2 0;
+    /* Só embaixo */
+    -fx-background-color: rgba(0, 0, 0, 0.3);
+    -fx-padding: 10;
 }
 
-.rank-1 { -fx-text-fill: #ffe100; }
-.rank-2 { -fx-text-fill: #cfcfcf; }
-.rank-3 { -fx-text-fill: #d67b00; }
-.rank-others { -fx-text-fill: #00ffcc; }
-
-.rank-name {
-    -fx-font-size: 24px;
-    -fx-font-family: 'Press Start 2P';
+.hud-label {
+    -fx-font-family: 'Verdana', sans-serif;
+    -fx-font-weight: bold;
+    -fx-font-size: 10px;
+    -fx-text-fill: #ffcc00;
+    /* Texto Dourado */
 }
 
-.rank-score {
-    -fx-font-size: 24px;
-    -fx-font-family: 'Press Start 2P';
-}
-
-/* =========================================
-   OUTROS
-   ========================================= */
-.crt-overlay {
-    -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, rgba(0,0,0,0) 50%, rgba(0,0,0,0.22) 50%);
-    -fx-background-size: 100% 3px;
-    -fx-opacity: 0.22;
-    -fx-mouse-transparent: true;
-}
-
-.arcade-alert {
-    -fx-background-color: #1b1b1b;
-    -fx-border-color: #ff00ff;
-    -fx-border-width: 2;
-}
-.arcade-alert .label {
+.hud-value {
+    -fx-font-family: 'Verdana', sans-serif;
+    /* Números limpos */
+    -fx-font-weight: bold;
+    -fx-font-size: 18px;
     -fx-text-fill: white;
+    -fx-effect: dropshadow(one-pass-box, black, 2, 2, 0, 0);
+}
+
+/* Caixa da Imagem Central */
+.game-image-box {
+    -fx-border-color: #ffcc00;
+    /* Borda Dourada */
+    -fx-border-width: 4;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 15, 0.3, 0, 0);
+}
+
+/* BOTÕES DE RESPOSTA (OVAIS / REDONDOS) */
+.game-button {
+    /* Degradê Azul estilo TV */
+    -fx-background-color: linear-gradient(to bottom, #0044cc, #002266);
+
+    /* Borda Dourada */
+    -fx-border-color: #ffcc00;
+    -fx-border-width: 2;
+
+    /* Formato Oval (Pílula) */
+    -fx-background-radius: 30;
+    -fx-border-radius: 30;
+
+    /* Texto */
+    -fx-text-fill: white;
+    -fx-font-family: 'Verdana', sans-serif;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+    -fx-alignment: CENTER;
+    -fx-padding: 8 15;
+}
+
+.game-button:hover {
+    /* Vira Dourado/Amarelo com texto escuro */
+    -fx-background-color: linear-gradient(to bottom, #ffcc00, #ff9900);
+    -fx-text-fill: #000033;
+    -fx-border-color: white;
+    -fx-effect: dropshadow(gaussian, rgba(255, 204, 0, 0.6), 15, 0.5, 0, 0);
+}
+
+/* Cores de Feedback (Acerto/Erro) */
+.btn-correct {
+    -fx-background-color: #00aa00;
+    /* Verde */
+    -fx-border-color: white;
+}
+
+.btn-wrong {
+    -fx-background-color: #cc0000;
+    /* Vermelho */
+    -fx-border-color: white;
+}
+
+/* Botão Sair/Desistir */
+.btn-giveup {
+    -fx-background-color: transparent;
+    -fx-text-fill: #ffcc00;
+    /* Dourado */
+    -fx-font-size: 10px;
+    -fx-font-family: 'Verdana';
+    -fx-cursor: hand;
+    -fx-border-width: 0;
+    -fx-underline: true;
+}
+
+.btn-giveup:hover {
+    -fx-text-fill: white;
+}
+
+/* =================================================================================
+   4. NOVOS ESTILOS: DIFICULDADE E MENU FLUTUANTE
+   ================================================================================= */
+
+/* Botão de Configurações (Engrenagem) */
+.btn-settings {
+    -fx-background-color: transparent;
+    -fx-text-fill: #666;
+    -fx-font-size: 24px;
+    -fx-cursor: hand;
+    -fx-border-width: 0;
+}
+
+.btn-settings:hover {
+    -fx-text-fill: #fff;
+    -fx-effect: dropshadow(gaussian, white, 5, 0.5, 0, 0);
+}
+
+/* Painel de Configurações (O "Service Menu") */
+.settings-panel {
+    -fx-background-color: rgba(0, 0, 0, 0.9);
+    -fx-border-color: #00eaff;
+    -fx-border-width: 2;
+    -fx-padding: 15;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.8), 10, 0, 0, 0);
+}
+
+/* --- BOTÕES DE DIFICULDADE (ESTILO BLOCO ARCADE) --- */
+.diff-toggle {
+    -fx-background-color: #222;
+    /* Apagado */
+    -fx-background-radius: 0;
+    /* Quadrado (Raiz) */
+    -fx-border-color: #555;
+    -fx-border-width: 3;
+    -fx-text-fill: #555;
     -fx-font-family: 'Press Start 2P';
     -fx-font-size: 12px;
+    -fx-cursor: hand;
+    -fx-pref-width: 180;
+    -fx-pref-height: 50;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 10;
 }
-.arcade-alert .content {
-    -fx-text-fill: #00ff66;
-    -fx-font-size: 14px;
+
+/* Quando o mouse passa por cima (Hover) */
+.diff-toggle:hover {
+    -fx-background-color: #333;
+    -fx-border-color: #777;
+}
+
+/* --- ESTADOS SELECIONADOS (ACESOS) --- */
+
+/* NORMAL (Verde) */
+.diff-normal:selected {
+    -fx-background-color: #004400;
+    -fx-border-color: #00ff00;
+    -fx-text-fill: #00ff00;
+    -fx-effect: dropshadow(gaussian, #00ff00, 15, 0.4, 0, 0);
+}
+
+/* HARD (Laranja) */
+.diff-hard:selected {
+    -fx-background-color: #663300;
+    -fx-border-color: #ffaa00;
+    -fx-text-fill: #ffaa00;
+    -fx-effect: dropshadow(gaussian, #ffaa00, 15, 0.4, 0, 0);
+}
+
+/* SOULS (Vermelho Sangue) */
+.diff-souls:selected {
+    -fx-background-color: #440000;
+    -fx-border-color: #ff0000;
+    -fx-text-fill: #ff0000;
+    -fx-effect: dropshadow(gaussian, #ff0000, 20, 0.6, 0, 0);
+}
+
+/* =================================================================================
+   5. SLOT DE NOME (ESTILO ARCADE _ _ _)
+   ================================================================================= */
+
+/* Cada letra individual */
+.char-slot {
+    -fx-font-family: 'Press Start 2P';
+    -fx-font-size: 40px;
+    /* Letra grande */
+    -fx-text-fill: #fff;
+    /* Verde Neon */
+
+    -fx-border-color: #333;
+    /* Cor do traço quando vazio */
+    -fx-border-width: 0 0 5 0;
+    /* Borda apenas em baixo (5px) */
+    -fx-border-style: solid;
+
+    -fx-alignment: CENTER;
+    -fx-min-width: 60px;
+    /* Largura fixa para alinhar */
+    -fx-min-height: 70px;
+}
+
+/* Quando o usuário digitou uma letra naquele slot */
+.char-slot-filled {
+    -fx-border-color: #7a14ff;
+    /* O traço fica verde também */
+    -fx-effect: dropshadow(gaussian, #7a14ff, 15, 0.4, 0, 0);
+    /* Brilho neon */
 }
