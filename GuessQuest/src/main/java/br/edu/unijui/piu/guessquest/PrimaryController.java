@@ -7,7 +7,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.RadioButton;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.Region;
@@ -19,16 +19,33 @@ public class PrimaryController {
     @FXML private RadioButton radioNormal;
     @FXML private RadioButton radioHard;
     @FXML private RadioButton radioSouls;
+    
+    // Sliders de Volume
+    @FXML private Slider volumeMusicSlider;
+    @FXML private Slider volumeSfxSlider;
 
     @FXML
     public void initialize() {
-        // Limita o campo de nome a 4 caracteres (estilo arcade: AAA)
         nameField.textProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue.length() > 4) {
                 nameField.setText(oldValue);
             }
-            // Força caixa alta
             nameField.setText(nameField.getText().toUpperCase());
+        });
+
+        // Configuração inicial dos sliders
+        SoundManager sound = SoundManager.getInstance();
+        
+        volumeMusicSlider.setValue(sound.getMusicVolume() * 100);
+        volumeSfxSlider.setValue(sound.getSfxVolume() * 100);
+
+        // Listeners para atualizar volume em tempo real
+        volumeMusicSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            sound.setMusicVolume(newVal.doubleValue() / 100.0);
+        });
+
+        volumeSfxSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            sound.setSfxVolume(newVal.doubleValue() / 100.0);
         });
     }
 
@@ -41,7 +58,6 @@ public class PrimaryController {
             return;
         }
 
-        // Configura o estado do jogo
         GameState state = GameState.getInstance();
         state.setPlayerName(name);
 
@@ -50,8 +66,10 @@ public class PrimaryController {
         else if (radioSouls.isSelected()) state.setDifficulty(GameState.Difficulty.SOULS);
 
         state.resetGame();
+        
+        // Toca um som de confirmação se quiser
+        SoundManager.getInstance().playSound("correct.mp3");
 
-        // Troca para a tela do jogo
         App.setRoot("secondary");
     }
     

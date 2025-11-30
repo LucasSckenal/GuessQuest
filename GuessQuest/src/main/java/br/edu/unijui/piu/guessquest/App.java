@@ -10,9 +10,6 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-/**
- * Classe principal da aplicação JavaFX.
- */
 public class App extends Application {
 
     private static Scene scene;
@@ -21,11 +18,9 @@ public class App extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         primaryStage = stage;
-        // Tamanho inicial razoável, mas redimensionável
         scene = new Scene(loadFXML("primary"), 1024, 768); 
         scene.getStylesheets().add(getClass().getResource("styles.css").toExternalForm());
         
-        // Atalho opcional para alternar fullscreen manualmente (F11)
         scene.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
             if (KeyCode.F11 == event.getCode()) {
                 stage.setFullScreen(!stage.isFullScreen());
@@ -34,8 +29,12 @@ public class App extends Application {
 
         stage.setTitle("Guess Quest Arcade");
         stage.setScene(scene);
-        stage.setResizable(true); // Permite redimensionar/maximizar
+        stage.setResizable(true);
         stage.show();
+
+        // INICIA MÚSICA DE FUNDO
+        // Certifique-se de ter o arquivo "bgm.mp3" na pasta de audio
+        SoundManager.getInstance().playMusic("bgm.mp3");
     }
 
     public static void setRoot(String fxml) throws IOException {
