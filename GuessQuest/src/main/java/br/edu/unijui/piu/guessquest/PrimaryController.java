@@ -1,101 +1,96 @@
 package br.edu.unijui.piu.guessquest;
 
-import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextFormatter;
-
 import java.io.IOException;
+import java.util.List;
+
+import javafx.application.Platform;
+import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.layout.Region;
 
 public class PrimaryController {
 
-    @FXML private TextField char1;
-    @FXML private TextField char2;
-    @FXML private TextField char3;
-    @FXML private TextField char4;
-    
-    @FXML private Label leaderboardLabel;
-    @FXML private Button btnNormal;
-    @FXML private Button btnHard;
-    @FXML private Button btnMage;
+    @FXML private TextField nameField;
+    @FXML private ToggleGroup difficultyGroup;
+    @FXML private RadioButton radioNormal;
+    @FXML private RadioButton radioHard;
+    @FXML private RadioButton radioSouls;
 
     @FXML
     public void initialize() {
-        setupCharInput(char1, char2);
-        setupCharInput(char2, char3);
-        setupCharInput(char3, char4);
-        setupCharInput(char4, null); // Último não foca próximo
-
-        updateLeaderboard();
-        selectDifficulty(App.Difficulty.NORMAL);
-    }
-
-    private void setupCharInput(TextField current, TextField next) {
-        // Formatter para aceitar apenas 1 caractere maiúsculo
-        current.setTextFormatter(new TextFormatter<>((change) -> {
-            change.setText(change.getText().toUpperCase());
-            if (change.getControlNewText().length() > 1) {
-                return null;
+        // Limita o campo de nome a 4 caracteres (estilo arcade: AAA)
+        nameField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.length() > 4) {
+                nameField.setText(oldValue);
             }
-            return change;
-        }));
-
-        // Pula para o próximo ao digitar
-        current.textProperty().addListener((obs, oldV, newV) -> {
-            if (newV.length() == 1 && next != null) {
-                next.requestFocus();
-            }
+            // Força caixa alta
+            nameField.setText(nameField.getText().toUpperCase());
         });
-    }
-
-    private void updateLeaderboard() {
-        StringBuilder sb = new StringBuilder();
-        if (App.leaderboard.isEmpty()) {
-            sb.append("NO RECORDS YET");
-        } else {
-            for (int i = 0; i < App.leaderboard.size(); i++) {
-                App.ScoreEntry entry = App.leaderboard.get(i);
-                sb.append(String.format("%d. %s - %04d\n", i + 1, entry.name, entry.score));
-            }
-        }
-        leaderboardLabel.setText(sb.toString());
-    }
-
-    @FXML
-    private void onNormal() { selectDifficulty(App.Difficulty.NORMAL); }
-    
-    @FXML
-    private void onHard() { selectDifficulty(App.Difficulty.HARD); }
-    
-    @FXML
-    private void onMage() { selectDifficulty(App.Difficulty.MAGE); }
-
-    private void selectDifficulty(App.Difficulty diff) {
-        App.currentDifficulty = diff;
-        
-        String selectedStyle = "-fx-background-color: transparent; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 2;";
-        String defaultStyle = "-fx-background-color: transparent; -fx-text-fill: gray; -fx-border-color: #444; -fx-border-width: 2;";
-
-        // Reseta todos
-        btnNormal.setStyle(defaultStyle);
-        btnHard.setStyle(defaultStyle);
-        btnMage.setStyle(defaultStyle);
-
-        // Aplica estilo no selecionado
-        if (diff == App.Difficulty.NORMAL) btnNormal.setStyle(selectedStyle + "-fx-border-color: #4CAF50;");
-        if (diff == App.Difficulty.HARD) btnHard.setStyle(selectedStyle + "-fx-border-color: #ffaa00;");
-        if (diff == App.Difficulty.MAGE) btnMage.setStyle(selectedStyle + "-fx-border-color: #ff4444;");
     }
 
     @FXML
     private void startGame() throws IOException {
-        // Junta os caracteres
-        String name = char1.getText() + char2.getText() + char3.getText() + char4.getText();
-        if (name.trim().isEmpty()) {
-            name = "GUES";
+        String name = nameField.getText();
+        
+        if (name.isEmpty()) {
+            showAlert("ATENÇÃO", "INSIRA SEU NOME (MAX 4 CARACTERES)");
+            return;
         }
-        App.playerName = name;
+
+        // Configura o estado do jogo
+        GameState state = GameState.getInstance();
+        state.setPlayerName(name);
+
+        if (radioNormal.isSelected()) state.setDifficulty(GameState.Difficulty.NORMAL);
+        else if (radioHard.isSelected()) state.setDifficulty(GameState.Difficulty.HARD);
+        else if (radioSouls.isSelected()) state.setDifficulty(GameState.Difficulty.SOULS);
+
+        state.resetGame();
+
+        // Troca para a tela do jogo
         App.setRoot("secondary");
+    }
+    
+    @FXML
+    private void showLeaderboard() {
+        List<LeaderboardManager.ScoreEntry> scores = LeaderboardManager.loadScores();
+        StringBuilder sb = new StringBuilder();
+        
+        if (scores.isEmpty()) {
+            sb.append("SEM RECORDES AINDA...\nSEJA O PRIMEIRO!");
+        } else {
+            sb.append("TOP 5 JOGADORES\n\n");
+            for (int i = 0; i < scores.size(); i++) {
+                sb.append(String.format("#%d  %s\n", i + 1, scores.get(i).toString()));
+            }
+        }
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("HALL OF FAME");
+        alert.setHeaderText("RECORDES LOCAIS");
+        alert.setContentText(sb.toString());
+        alert.getDialogPane().getStylesheets().add(getClass().getResource("styles.css").toExternalForm());
+        alert.getDialogPane().getStyleClass().add("arcade-alert");
+        alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+        alert.showAndWait();
+    }
+
+    @FXML
+    private void exitApp() {
+        Platform.exit();
+        System.exit(0);
+    }
+
+    private void showAlert(String header, String content) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("SYSTEM ALERT");
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.getDialogPane().getStylesheets().add(getClass().getResource("styles.css").toExternalForm());
+        alert.showAndWait();
     }
 }

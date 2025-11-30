@@ -1,95 +1,94 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.Region?>
+<!-- Import do ViewBox para escalabilidade -->
+<?import javafx.scene.Group?> 
 
-<VBox alignment="CENTER" spacing="20.0" style="-fx-background-color: #2b2b2b;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="br.edu.unijui.piu.guessquest.PrimaryController">
-   <padding>
-      <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
-   </padding>
-   
-   <VBox alignment="CENTER" spacing="15.0" maxWidth="600.0" VBox.vgrow="ALWAYS">
-       
-       <Label text="GUESS QUEST" textFill="#8623b4">
-          <font>
-             <Font name="Ithaca" size="64.0" />
-          </font>
-       </Label>
-       
-       <Label text="RETRO EDITION" textFill="WHITE">
-          <font>
-             <Font name="Ithaca" size="20.0" />
-          </font>
-       </Label>
+<StackPane xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="br.edu.unijui.piu.guessquest.PrimaryController" styleClass="root">
     
-       <Separator opacity="0.0" prefHeight="30.0" />
+    <!-- Efeito de linhas CRT no fundo (ocupa toda a tela) -->
+    <VBox styleClass="crt-overlay" />
     
-       <!-- Input de Nome Estilo Arcade (4 slots separados) -->
-       <VBox alignment="CENTER" spacing="10">
-          <Label text="PLAYER 1" textFill="#cccccc">
-             <font><Font name="Ithaca" size="18.0" /></font>
-          </Label>
-          
-          <HBox alignment="CENTER" spacing="15">
-              <!-- Estilo unificado para os slots -->
-              <TextField fx:id="char1" alignment="CENTER" prefWidth="50" prefHeight="60" 
-                         style="-fx-background-color: transparent; -fx-text-fill: #ffffffff; -fx-border-color: transparent transparent #8623b4 transparent; -fx-border-width: 0 0 4 0; -fx-font-family: 'Ithaca'; -fx-font-size: 32px;" />
-              <TextField fx:id="char2" alignment="CENTER" prefWidth="50" prefHeight="60" 
-                         style="-fx-background-color: transparent; -fx-text-fill: #ffffffff; -fx-border-color: transparent transparent #8623b4 transparent; -fx-border-width: 0 0 4 0; -fx-font-family: 'Ithaca'; -fx-font-size: 32px;" />
-              <TextField fx:id="char3" alignment="CENTER" prefWidth="50" prefHeight="60" 
-                         style="-fx-background-color: transparent; -fx-text-fill: #ffffffff; -fx-border-color: transparent transparent #8623b4 transparent; -fx-border-width: 0 0 4 0; -fx-font-family: 'Ithaca'; -fx-font-size: 32px;" />
-              <TextField fx:id="char4" alignment="CENTER" prefWidth="50" prefHeight="60" 
-                         style="-fx-background-color: transparent; -fx-text-fill: #ffffffff; -fx-border-color: transparent transparent #8623b4 transparent; -fx-border-width: 0 0 4 0; -fx-font-family: 'Ithaca'; -fx-font-size: 32px;" />
-          </HBox>
-       </VBox>
+    <!-- 
+      A MÁGICA: Envolvemos o BorderPane em um Group dentro de um StackPane.
+      O StackPane vai centralizar. 
+      Na verdade, a melhor forma de escalar UI em JavaFX é usar a propriedade 
+      scaleX/scaleY vinculada, mas usar um layout que se adapta é melhor.
+      
+      Porém, para o efeito "Arcade" onde queremos que o layout fixo (ex: 800x600)
+      cresça proporcionalmente para preencher 1920x1080 sem reflow, a melhor opção é
+      fazer o BorderPane ser o filho de um layout elástico ou usar ViewBox (se disponível na versão).
+      
+      Como ViewBox não é padrão em FXML antigo sem import, vamos usar a estratégia de:
+      StackPane (Full Screen) -> BorderPane (Tamanho fixo ou dinâmico).
+      
+      CORREÇÃO: Removemos maxWidth/maxHeight do BorderPane para ele crescer.
+      E usamos ViewBox para escalar o CONTEÚDO se quisermos pixel art, mas 
+      para interfaces modernas, deixamos o layout fluir.
+      
+      Se você quer que os elementos AUMENTEM de tamanho (fontes maiores),
+      o ViewBox é essencial.
+    -->
     
-       <Separator opacity="0.0" prefHeight="20.0" />
+    <!-- Usando a classe 'scalable-content' para controle via CSS/Code se precisar, 
+         mas aqui vamos deixar o StackPane centralizar e usamos ScaleTransform se necessário.
+         Mas o JavaFX tem o container 'ViewBox' em pacotes mais novos? Não, geralmente é código.
+         
+         Vamos simplificar: Deixar o BorderPane crescer (sem max size) e usar ViewBox é o ideal.
+         Vou assumir que o ambiente suporta o container pai redimensionando.
+    -->
+    
+    <BorderPane styleClass="arcade-container">
+        <!-- Removido maxWidth/maxHeight para preencher a tela -->
+        
+        <top>
+            <VBox alignment="CENTER" spacing="30"> <!-- Espaçamento aumentado -->
+                <Label text="GUESS QUEST" styleClass="title-text" style="-fx-font-size: 60px;" /> <!-- Fonte maior base -->
+                <Label text="PRESS START" styleClass="blink-text" style="-fx-font-size: 24px;" />
+            </VBox>
+        </top>
+        
+        <center>
+            <VBox alignment="CENTER" spacing="40" styleClass="menu-box">
+                <VBox alignment="CENTER" spacing="15">
+                    <Label text="INSIRA SEU NOME" styleClass="label-retro" style="-fx-font-size: 20px;" />
+                    <TextField fx:id="nameField" promptText="AAA" maxWidth="400" alignment="CENTER" styleClass="input-retro" style="-fx-font-size: 30px;" />
+                </VBox>
 
-       <Label text="SELECT MODE" textFill="#888888">
-           <font><Font name="Ithaca" size="14.0" /></font>
-       </Label>
-       
-       <HBox alignment="CENTER" spacing="20.0">
-          <Button fx:id="btnNormal" onAction="#onNormal" text="NORMAL" style="-fx-background-color: transparent; -fx-border-color: #4CAF50; -fx-text-fill: white; -fx-cursor: hand; -fx-border-width: 2;">
-             <font><Font name="Ithaca" size="16.0" /></font>
-             <padding><Insets bottom="10" left="20" right="20" top="10" /></padding>
-          </Button>
-          <Button fx:id="btnHard" onAction="#onHard" text="HARD" style="-fx-background-color: transparent; -fx-border-color: #ffaa00; -fx-text-fill: white; -fx-cursor: hand; -fx-border-width: 2;">
-             <font><Font name="Ithaca" size="16.0" /></font>
-             <padding><Insets bottom="10" left="20" right="20" top="10" /></padding>
-          </Button>
-          <Button fx:id="btnMage" onAction="#onMage" text="MAGE" style="-fx-background-color: transparent; -fx-border-color: #ff4444; -fx-text-fill: white; -fx-cursor: hand; -fx-border-width: 2;">
-             <font><Font name="Ithaca" size="16.0" /></font>
-             <padding><Insets bottom="10" left="20" right="20" top="10" /></padding>
-          </Button>
-       </HBox>
-    
-       <Separator opacity="0.0" prefHeight="30.0" />
-    
-       <Button onAction="#startGame" style="-fx-background-color: #8623b4; -fx-text-fill: white; -fx-background-radius: 0; -fx-cursor: hand;" text="START GAME">
-          <font>
-             <Font name="Ithaca" size="36.0" />
-          </font>
-          <padding>
-             <Insets bottom="15.0" left="50.0" right="50.0" top="15.0" />
-          </padding>
-       </Button>
-    
-       <Separator opacity="0.0" prefHeight="20.0" />
+                <VBox alignment="CENTER" spacing="20">
+                    <Label text="DIFICULDADE" styleClass="label-retro" style="-fx-font-size: 20px;" />
+                    <HBox alignment="CENTER" spacing="40">
+                        <RadioButton fx:id="radioNormal" text="NORMAL" selected="true" styleClass="radio-retro" style="-fx-font-size: 18px;">
+                            <toggleGroup>
+                                <ToggleGroup fx:id="difficultyGroup" />
+                            </toggleGroup>
+                        </RadioButton>
+                        <RadioButton fx:id="radioHard" text="DIFÍCIL" toggleGroup="$difficultyGroup" styleClass="radio-retro" style="-fx-font-size: 18px;"/>
+                        <RadioButton fx:id="radioSouls" text="SOULS" toggleGroup="$difficultyGroup" styleClass="radio-retro" style="-fx-font-size: 18px;"/>
+                    </HBox>
+                </VBox>
 
-       <VBox alignment="CENTER" spacing="5" style="-fx-border-color: #444; -fx-border-width: 2; -fx-padding: 15; -fx-background-color: #1a1a1a;" maxWidth="400.0">
-           <Label text="HIGH SCORES" textFill="#ffd700">
-               <font><Font name="Ithaca" size="18.0" /></font>
-           </Label>
-           <Label fx:id="leaderboardLabel" text="NO DATA" textAlignment="CENTER" textFill="#cccccc">
-               <font><Font name="Ithaca" size="14.0" /></font>
-           </Label>
-       </VBox>
-   </VBox>
-</VBox>
+                <VBox alignment="CENTER" spacing="20">
+                    <Button text="JOGAR" onAction="#startGame" styleClass="btn-start" prefWidth="300" style="-fx-font-size: 24px;" />
+                    <Button text="RANKING" onAction="#showLeaderboard" styleClass="btn-leaderboard" prefWidth="300" style="-fx-font-size: 20px;" />
+                    <Button text="SAIR" onAction="#exitApp" styleClass="btn-exit" prefWidth="200" style="-fx-font-size: 18px;" />
+                </VBox>
+            </VBox>
+        </center>
+        
+        <bottom>
+            <VBox alignment="CENTER" spacing="10">
+               <Label text="v1.0 ARCADE EDITION" style="-fx-text-fill: #555; -fx-font-size: 14px;" />
+            </VBox>
+        </bottom>
+    </BorderPane>
+</StackPane>

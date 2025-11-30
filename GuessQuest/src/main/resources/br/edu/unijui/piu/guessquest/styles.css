@@ -1,0 +1,174 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+.root {
+    -fx-background-color: #1a1a1a;
+    -fx-font-family: 'Press Start 2P', monospace;
+}
+
+/* Centraliza o conteúdo no StackPane */
+.root .border-pane {
+     -fx-padding: 20;
+}
+
+.arcade-container {
+    -fx-background-color: #000000;
+    /* Neon reduzido: raio menor (10) e cor um pouco mais escura */
+    -fx-border-color: #cc00cc; 
+    -fx-border-width: 4;
+    -fx-border-radius: 15;
+    -fx-background-radius: 15;
+    -fx-padding: 20;
+    /* Sombra mais contida */
+    -fx-effect: dropshadow(three-pass-box, rgba(204, 0, 204, 0.4), 10, 0, 0, 0);
+}
+
+/* Títulos */
+.title-text {
+    -fx-font-size: 40px;
+    -fx-text-fill: #00cccc; /* Ciano um pouco mais fechado */
+    -fx-effect: dropshadow(gaussian, #00cccc, 5, 0.3, 0, 0);
+}
+
+.question-title {
+    -fx-font-size: 28px;
+    -fx-text-fill: #cc00cc;
+    -fx-effect: dropshadow(gaussian, #cc00cc, 5, 0.3, 0, 0);
+    -fx-padding: 0 0 10 0;
+}
+
+/* Textos gerais */
+.label-retro, .info-text {
+    -fx-text-fill: #eeeeee;
+    -fx-font-size: 16px;
+}
+
+.info-text-red {
+    -fx-text-fill: #ff4444;
+    -fx-font-size: 16px;
+}
+
+.info-text-yellow {
+    -fx-text-fill: #ffff44;
+    -fx-font-size: 16px;
+}
+
+/* Inputs */
+.input-retro {
+    -fx-background-color: #111;
+    -fx-text-fill: #00ee00;
+    -fx-border-color: #00aa00;
+    -fx-border-width: 2;
+    -fx-font-family: 'Courier New', monospace;
+    -fx-font-size: 22px;
+}
+
+/* Radio Buttons */
+.radio-retro {
+    -fx-text-fill: #ddd;
+    -fx-font-size: 14px;
+}
+.radio-retro .radio {
+    -fx-background-color: black;
+    -fx-border-color: #888;
+}
+.radio-retro:selected .radio .dot {
+    -fx-background-color: #00ee00;
+}
+
+/* Botões Menu */
+.btn-start, .btn-leaderboard {
+    -fx-background-color: #008800;
+    -fx-text-fill: white;
+    -fx-font-size: 20px;
+    -fx-border-color: #00cc00;
+    -fx-border-width: 2;
+    -fx-cursor: hand;
+    -fx-padding: 10 20;
+}
+.btn-start:hover, .btn-leaderboard:hover {
+    -fx-background-color: #00aa00;
+    -fx-effect: dropshadow(gaussian, #00aa00, 5, 0.2, 0, 0);
+}
+
+.btn-leaderboard {
+    -fx-background-color: #004488;
+    -fx-border-color: #0066cc;
+    -fx-font-size: 16px;
+}
+
+.btn-exit {
+    -fx-background-color: #880000;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-border-color: #cc0000;
+    -fx-border-width: 2;
+    -fx-cursor: hand;
+    -fx-padding: 8 15;
+}
+
+/* Botões do Jogo */
+.game-button {
+    -fx-background-color: #111;
+    -fx-text-fill: #ddd;
+    -fx-border-color: #4477ff;
+    -fx-border-width: 2;
+    -fx-border-radius: 8;
+    -fx-font-size: 14px;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 12;
+    -fx-cursor: hand;
+}
+.game-button:hover {
+    -fx-background-color: rgba(68, 119, 255, 0.2);
+}
+
+.button-correct {
+    -fx-background-color: #008800;
+    -fx-border-color: #00ee00;
+}
+
+.button-wrong {
+    -fx-background-color: #880000;
+    -fx-border-color: #ee0000;
+}
+
+.image-frame {
+    -fx-border-color: #ccc;
+    -fx-border-width: 3;
+    -fx-background-color: #050505;
+}
+
+/* CRT Scanline mais sutil */
+.crt-overlay {
+    -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, rgba(0,0,0,0) 50%, rgba(0,0,0,0.15) 50%);
+    -fx-background-size: 100% 4px;
+    -fx-mouse-transparent: true;
+    -fx-opacity: 0.2;
+}
+
+.blink-text {
+    -fx-text-fill: #eeee00;
+    -fx-font-size: 18px;
+}
+
+.feedback-text {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(one-pass-box, black, 3, 0.5, 0, 0);
+}
+
+/* Estilo do Alert Dialog personalizado */
+.arcade-alert {
+    -fx-background-color: #222;
+    -fx-border-color: #cc00cc;
+    -fx-border-width: 2;
+}
+.arcade-alert .label {
+    -fx-text-fill: white;
+    -fx-font-family: 'Press Start 2P';
+    -fx-font-size: 12px;
+}
+.arcade-alert .content {
+    -fx-text-fill: #00ff00;
+    -fx-font-size: 14px;
+}
