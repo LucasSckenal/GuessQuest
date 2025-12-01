@@ -30,7 +30,6 @@ public class PrimaryController {
     private Label slot1, slot2, slot3, slot4;
     private FadeTransition cursorBlink;
 
-    // Buffer para o cheat code
     private StringBuilder cheatBuffer = new StringBuilder();
 
     // --- TELA 2: DIFICULDADE ---
@@ -38,13 +37,8 @@ public class PrimaryController {
     private ToggleGroup difficultyGroup;
     @FXML
     private ToggleButton tglNormal, tglHard, tglSouls;
-
-    // Botão secreto
     @FXML
     private ToggleButton tglInfinity;
-
-    // REMOVIDO: private FadeTransition activeDifficultyBlink; (Não vamos mais
-    // piscar)
 
     // --- TELA 3: SETTINGS ---
     @FXML
@@ -52,7 +46,6 @@ public class PrimaryController {
     @FXML
     private Slider volumeSfxSlider;
 
-    // --- EXTRAS ---
     @FXML
     private Label blinkLabel;
 
@@ -60,7 +53,6 @@ public class PrimaryController {
     public void initialize() {
         setupAudio();
 
-        // Efeito "INSERT COIN" piscando (Esse mantive pois é estético do título)
         FadeTransition ft = new FadeTransition(Duration.seconds(0.8), blinkLabel);
         ft.setFromValue(1.0);
         ft.setToValue(0.1);
@@ -87,37 +79,27 @@ public class PrimaryController {
         });
     }
 
-    // =========================================================================
-    // LÓGICA DO EASTER EGG (ABACATE)
-    // =========================================================================
     private void setupCheatCode() {
         nameField.setOnKeyPressed((KeyEvent event) -> {
             String key = event.getText().toUpperCase();
-
             if (key.matches("[A-Z]")) {
                 cheatBuffer.append(key);
-                if (cheatBuffer.length() > 7) {
+                if (cheatBuffer.length() > 7)
                     cheatBuffer.deleteCharAt(0);
-                }
-                if (cheatBuffer.toString().equals("ABACATE")) {
+                if (cheatBuffer.toString().equals("ABACATE"))
                     unlockInfinityMode();
-                }
             }
         });
     }
 
     private void unlockInfinityMode() {
         SoundManager.getInstance().playSound("correct.wav");
-
         tglInfinity.setVisible(true);
         tglInfinity.setManaged(true);
-
         blinkLabel.setText("INFINITY UNLOCKED!");
-        blinkLabel.setStyle("-fx-text-fill: #ffd700; -fx-effect: dropshadow(gaussian, #ffd700, 10, 0.8, 0, 0);");
-
+        blinkLabel.setStyle("-fx-text-fill: #ffd700; -fx-effect: dropshadow(gaussian, #B8860B, 10, 0.0, 0, 0);");
         cheatBuffer.setLength(0);
     }
-    // =========================================================================
 
     private void updateNameSlots(String text) {
         char[] chars = text.toCharArray();
@@ -181,38 +163,28 @@ public class PrimaryController {
         volumeSfxSlider.valueProperty().addListener((o, oldV, newV) -> sound.setSfxVolume(newV.doubleValue() / 100.0));
     }
 
-    // --- NAVEGAÇÃO ---
-
     @FXML
     private void confirmName() {
         String name = nameField.getText().trim();
         if (name.isEmpty())
             return;
-
         GameState.getInstance().setPlayerName(name.toUpperCase());
         SoundManager.getInstance().playSound("select.wav");
-
         screenNameInput.setVisible(false);
         screenDifficulty.setVisible(true);
-
-        // Removido: startDiffAnimation(tglNormal); - Não pisca mais
     }
 
-    // NOVO: Ação do botão voltar
     @FXML
     private void backToNameInput() {
-        SoundManager.getInstance().playSound("select.wav"); // Som de cancelamento/seleção
+        SoundManager.getInstance().playSound("select.wav");
         screenDifficulty.setVisible(false);
         screenNameInput.setVisible(true);
-
-        // Foca no nome novamente para continuar digitando
         Platform.runLater(() -> nameField.requestFocus());
     }
 
     @FXML
     private void startGame() throws IOException {
         GameState.Difficulty selectedDiff = GameState.Difficulty.NORMAL;
-
         if (tglHard.isSelected())
             selectedDiff = GameState.Difficulty.HARD;
         else if (tglSouls.isSelected())
@@ -224,26 +196,38 @@ public class PrimaryController {
         GameState.getInstance().resetGame();
 
         SoundManager.getInstance().playSound("start.wav");
-
         App.setRoot("secondary");
     }
 
     @FXML
+    private void showLeaderboard() throws IOException {
+        SoundManager.getInstance().playSound("select.wav");
+        App.setRoot("leaderboard");
+    }
+
+    // === LÓGICA DE TROCA DE TELA PARA SETTINGS ===
+    @FXML
     private void goToSettings() {
+        // Esconde tudo o que está na tela principal
+        screenNameInput.setVisible(false);
+        screenDifficulty.setVisible(false); // Caso esteja nessa tela
+        bottomMenu.setVisible(false); // Esconde os botões de baixo
+
+        // Mostra a tela de settings
         screenSettings.setVisible(true);
         screenSettings.toFront();
-        bottomMenu.setVisible(false);
     }
 
     @FXML
     private void backToName() {
+        // Esconde settings
         screenSettings.setVisible(false);
-        bottomMenu.setVisible(true);
-    }
 
-    @FXML
-    private void showLeaderboard() {
-        // App.setRoot("leaderboard");
+        // Restaura a tela inicial
+        screenNameInput.setVisible(true);
+        bottomMenu.setVisible(true); // Traz os botões de volta
+
+        Platform.runLater(() -> nameField.requestFocus());
     }
 
     @FXML
