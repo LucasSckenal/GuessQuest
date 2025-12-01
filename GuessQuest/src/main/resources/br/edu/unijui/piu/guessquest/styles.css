@@ -2,7 +2,6 @@
    1. CONFIGURAÇÕES GERAIS E O GABINETE (GLOBAL)
    ================================================================================= */
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Verdana:wght@400;700&display=swap');
 
 .root {
     /* AQUI FICA A FOTO DA MÁQUINA DE FLIPERAMA */
@@ -272,7 +271,7 @@
     -fx-cursor: hand;
     -fx-pref-width: 220;
     -fx-pref-height: 50;
-    -fx-alignment: JUSTIFY;
+    -fx-alignment: CENTER;
     -fx-padding: 10;
 }
 

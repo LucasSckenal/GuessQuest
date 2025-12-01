@@ -114,7 +114,7 @@ public class SecondaryController {
         
         StringBuilder livesStr = new StringBuilder("VIDAS: ");
         for (int i = 0; i < state.getCurrentLives(); i++) {
-            livesStr.append("🕹 "); 
+            livesStr.append("♥ "); 
         }
         lblLives.setText(livesStr.toString());
     }
@@ -171,6 +171,16 @@ public class SecondaryController {
     }
 
     private void setupLevelUI(GameData data) {
+        // --- LÓGICA DE PROTEÇÃO CONTRA IMAGEM VAZIA ---
+        // Se a imagem for nula ou vazia, em vez de mostrar "SEM IMAGEM",
+        // recarregamos o nível (buscamos outro jogo)
+        if (data.imageUrl == null || data.imageUrl.isEmpty()) {
+            System.out.println("Jogo " + data.correctName + " sem imagem. Tentando outro...");
+            loadNextLevel();
+            return;
+        }
+        // ----------------------------------------------
+
         loadingLayer.setVisible(false);
         interactionLocked = false;
         lblFeedback.setText(""); 
@@ -180,14 +190,12 @@ public class SecondaryController {
         gamesPlayedThisSession.add(data.correctName);
 
         try {
-            if (data.imageUrl != null && !data.imageUrl.isEmpty()) {
-                gameImage.setImage(new Image(data.imageUrl, true)); 
-            } else {
-                gameImage.setImage(null);
-                lblFeedback.setText("SEM IMAGEM");
-            }
+            // Como já validamos null/empty acima, podemos criar a imagem direto
+            gameImage.setImage(new Image(data.imageUrl, true)); 
         } catch (Exception e) {
-            lblFeedback.setText("ERRO NA IMAGEM");
+            // Se der erro ao carregar (ex: URL quebrada), também tentamos outro
+            loadNextLevel();
+            return;
         }
 
         List<String> options = data.options;
@@ -336,14 +344,9 @@ public class SecondaryController {
         GameData data = new GameData();
         List<GameCandidate> candidates = new ArrayList<>();
 
-        // REGEX ESTRITO: 
-        // 1. Procura "slug": "..." seguido de "name": "..."
-        // 2. [^\\{\\[]*? -> ESSENCIAL: Garante que NÃO entra em chaves { } ou colchetes [ ] aninhados.
-        //    Isso filtra automaticamente tags, gêneros e plataformas que são objetos dentro de listas.
         Pattern gamePattern = Pattern.compile("\"slug\":\"(?<slug>[^\"]+)\"[^\\{\\[]*?\"name\":\"(?<name>[^\"]+)\"");
         Matcher matcher = gamePattern.matcher(json);
 
-        // Lista de intervalos onde encontramos jogos (para buscar imagem depois)
         List<Integer> matchEnds = new ArrayList<>();
         List<String> tempNames = new ArrayList<>();
         List<String> tempSlugs = new ArrayList<>();
@@ -354,19 +357,15 @@ public class SecondaryController {
             matchEnds.add(matcher.end());
         }
 
-        // Processa cada match encontrado
         for (int i = 0; i < tempNames.size(); i++) {
             String name = tempNames.get(i);
             String slug = tempSlugs.get(i);
             int currentEnd = matchEnds.get(i);
             
-            // Define o limite de busca da imagem: até o início do próximo jogo ou fim do arquivo
             int limit = (i < matchEnds.size() - 1) ? matchEnds.get(i+1) : json.length();
-            // Limite de segurança para não varrer o JSON inteiro se algo der errado
             if (limit - currentEnd > 2000) limit = currentEnd + 2000; 
 
             if (isValidGameName(name, slug)) {
-                // Busca a imagem APENAS no intervalo deste jogo
                 String image = extractImageInRange(json, currentEnd, limit);
                 candidates.add(new GameCandidate(name, image));
             }
@@ -376,10 +375,11 @@ public class SecondaryController {
             return data;
         }
 
-        // Filtra jogos já jogados
+        // Filtra jogos já jogados e AGORA TAMBÉM jogos sem imagem
         List<GameCandidate> available = new ArrayList<>();
         for (GameCandidate cand : candidates) {
-            if (!gamesPlayedThisSession.contains(cand.name)) {
+            boolean hasImage = cand.image != null && !cand.image.isEmpty() && !cand.image.equals("null");
+            if (!gamesPlayedThisSession.contains(cand.name) && hasImage) {
                 available.add(cand);
             }
         }
