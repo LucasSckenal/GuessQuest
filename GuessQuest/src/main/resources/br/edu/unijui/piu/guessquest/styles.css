@@ -22,6 +22,12 @@
        Se o jogo não encaixar na tela da foto, mexa nestes números:
        Ordem: Topo | Direita | Baixo | Esquerda */
     -fx-padding: 85 115 80 115;
+
+    /* === MUDANÇA 1: APENAS A CURVATURA DA TELA === */
+    /* Curvatura forte em cima (50px) e leve em baixo (10px) */
+    /* Removi a borda preta que estava atrapalhando */
+    -fx-background-radius: 50 50 10 10;
+    -fx-border-radius: 50 50 10 10;
 }
 
 /* Efeito de linhas de TV (Scanlines) - Fica por cima de tudo */
@@ -32,7 +38,6 @@
     -fx-background-size: 100% 4px;
     -fx-opacity: 0.3;
     -fx-mouse-transparent: true;
-    /* Permite clicar através das linhas */
 }
 
 /* =================================================================================
@@ -60,56 +65,39 @@
 
 /* 1. O TRILHO (A linha por onde o slider passa) */
 .retro-slider .track {
-    -fx-background-color: #444444; /* Cor do trilho */
-    -fx-background-radius: 0;      /* Importante: Remove arredondamento */
-    -fx-pref-height: 8px;          /* Trilho mais grosso fica mais retro */
-    -fx-border-color: #222222;     /* Borda opcional para contraste */
+    -fx-background-color: #444444;
+    -fx-background-radius: 0;
+    -fx-pref-height: 8px;
+    -fx-border-color: #222222;
     -fx-border-width: 2px;
 }
 
-/* 2. A BARRA DE PROGRESSO (A parte colorida antes do botão) - Opcional */
+/* 2. A BARRA DE PROGRESSO */
 .retro-slider .track-color {
     -fx-background-color: #ffcc00;
     -fx-background-radius: 0;
 }
 
-/* 3. O BOTÃO (Thumb) - A mágica acontece aqui */
+/* 3. O BOTÃO (Thumb) */
 .retro-slider .thumb {
-    /* Define o formato geométrico de um "círculo pixelado" (quadrado sem pontas) */
     -fx-shape: "M 4 0 L 12 0 L 12 4 L 16 4 L 16 12 L 12 12 L 12 16 L 4 16 L 4 12 L 0 12 L 0 4 L 4 4 Z";
-    
-    /* Remove a suavização das bordas do JavaFX */
-    -fx-background-radius: 0; 
-    
-    /* CORES: 
-       1. #000000 (Preto total para o contorno pixelado)
-       2. #ffcc00 (Amarelo para o miolo) 
-    */
+    -fx-background-radius: 0;
     -fx-background-color: #000000, #ffcc00;
-    
-    /* O recuo cria a espessura da "borda" pixelada */
     -fx-background-insets: 0, 4;
-    
-    /* Tamanho do botão */
-    -fx-padding: 12px; 
-    
-    /* Garante que o shape mantenha a proporção */
+    -fx-padding: 12px;
     -fx-scale-shape: true;
 }
 
-/* Efeito ao passar o mouse */
 .retro-slider:hover .thumb {
-    -fx-background-color: #000000, #ffee44; /* Miolo mais claro */
+    -fx-background-color: #000000, #ffee44;
 }
 
-/* Efeito ao clicar */
 .retro-slider .thumb:pressed {
     -fx-background-color: #000000, #eebb00;
-    /* Move o miolo levemente para simular clique */
-    -fx-background-insets: 0, 6; 
+    -fx-background-insets: 0, 6;
 }
 
-/* Botões do Menu (Retangulares e Neon) */
+/* Botões do Menu */
 .btn-start,
 .btn-leaderboard,
 .btn-exit {
@@ -171,31 +159,34 @@
 
 /* Caixa da Imagem Central */
 .game-image-box {
-    -fx-border-color: #fff; /* Borda branca simples */
+    -fx-border-color: #fff;
     -fx-border-width: 4;
-    -fx-effect: dropshadow(gaussian, rgba(0, 255, 255, 0.3), 15, 0.3, 0, 0); /* Brilho Ciano */
+    -fx-effect: dropshadow(gaussian, rgba(0, 255, 255, 0.3), 15, 0.3, 0, 0);
 }
 
-/* BOTÕES DE RESPOSTA (RETRO / BLOCO) - SUBSTITUI O ESTILO OVAL */
+/* BOTÕES DE RESPOSTA (VERSÃO CORRIGIDA COM QUEBRA DE LINHA) */
 .game-button {
-    -fx-background-color: #000; /* Fundo preto */
-    
-    /* Borda Ciano/Azul Neon para diferenciar dos botões do menu */
-    -fx-border-color: #00eaff; 
+    -fx-background-color: #000;
+    -fx-border-color: #00eaff;
     -fx-border-width: 3;
-    
-    /* Formato Retangular */
     -fx-background-radius: 0;
     -fx-border-radius: 0;
-
-    /* Texto Pixelado */
     -fx-text-fill: #00eaff;
-    -fx-font-family: 'Press Start 2P'; 
-    -fx-font-size: 18px; /* Fonte menor pois o texto pode ser longo */
-    
+    -fx-font-family: 'Press Start 2P';
     -fx-cursor: hand;
-    -fx-alignment: CENTER_LEFT; /* Alinha texto a esquerda estilo quiz */
-    -fx-padding: 15;
+
+    /* === QUEBRA DE LINHA PARA NOMES GRANDES === */
+    -fx-wrap-text: true;
+    /* Permite quebrar linha */
+    -fx-text-alignment: CENTER;
+    /* Centraliza as linhas de texto */
+    -fx-alignment: CENTER;
+    /* Centraliza o conteúdo no botão */
+    -fx-min-height: 65;
+    /* Altura mínima para caber 2 linhas */
+    -fx-font-size: 14px;
+    /* Ajuste leve na fonte */
+    -fx-padding: 5;
 }
 
 .game-button:hover {
@@ -204,53 +195,50 @@
     -fx-effect: dropshadow(gaussian, rgba(0, 225, 255, 0.3), 20, 0.6, 0, 0);
 }
 
-/* Cores de Feedback (Acerto/Erro) para os botões retro */
-.btn-correct {
-    -fx-background-color: #00aa00; /* Fundo Verde */
-    -fx-border-color: #00ff00;
-    -fx-text-fill: #fff;
+/* Cores de Feedback (Acerto/Erro) */
+.btn-correct,
+.button-correct {
+    -fx-background-color: #00aa00 !important;
+    -fx-border-color: #00ff00 !important;
+    -fx-text-fill: #fff !important;
 }
 
-.btn-wrong {
-    -fx-background-color: #cc0000; /* Fundo Vermelho */
-    -fx-border-color: #ff0000;
-    -fx-text-fill: #fff;
+.btn-wrong,
+.button-wrong {
+    -fx-background-color: #cc0000 !important;
+    -fx-border-color: #ff0000 !important;
+    -fx-text-fill: #fff !important;
 }
 
 /* =================================================================================
-   4. LEADERBOARD - CORES DO PODIUM
+   4. LEADERBOARD
    ================================================================================= */
 
-/* Cor padrão para o resto da lista (Branco) */
 .leaderboard-list .label {
     -fx-text-fill: white;
     -fx-font-family: 'Press Start 2P';
     -fx-font-size: 28px;
 }
 
-/* OURO - 1º Lugar */
 .rank-1 {
-    -fx-text-fill: #FFD700 !important; /* Dourado */
+    -fx-text-fill: #FFD700 !important;
     -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.3), 10, 0.5, 0, 0);
 }
 
-/* PRATA - 2º Lugar */
 .rank-2 {
-    -fx-text-fill: #C0C0C0 !important; /* Prata */
+    -fx-text-fill: #C0C0C0 !important;
     -fx-effect: dropshadow(gaussian, rgba(192, 192, 192, 0.3), 10, 0.5, 0, 0);
 }
 
-/* BRONZE - 3º Lugar */
 .rank-3 {
-    -fx-text-fill: #CD7F32 !important; /* Bronze */
+    -fx-text-fill: #CD7F32 !important;
     -fx-effect: dropshadow(gaussian, rgba(205, 127, 50, 0.3), 10, 0.5, 0, 0);
 }
 
 /* =================================================================================
-   5. DEMAIS COMPONENTES
+   5. DEMAIS COMPONENTES (Painel, Dificuldade, Slots)
    ================================================================================= */
 
-/* Painel de Configurações (O "Service Menu") */
 .settings-panel {
     -fx-background-color: rgba(0, 0, 0, 0.9);
     -fx-border-color: #00eaff;
@@ -259,7 +247,6 @@
     -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.8), 10, 0, 0, 0);
 }
 
-/* --- BOTÕES DE DIFICULDADE (ESTILO BLOCO ARCADE) --- */
 .diff-toggle {
     -fx-background-color: #222;
     -fx-background-radius: 0;
@@ -280,7 +267,6 @@
     -fx-border-color: #777;
 }
 
-/* --- ESTADOS SELECIONADOS (ACESOS) --- */
 .diff-normal:selected {
     -fx-background-color: #004400;
     -fx-border-color: #00ff00;
@@ -302,7 +288,6 @@
     -fx-effect: dropshadow(gaussian, #ff0000, 20, 0.6, 0, 0);
 }
 
-/* Slot de Nome */
 .char-slot {
     -fx-font-family: 'Press Start 2P';
     -fx-font-size: 40px;
@@ -318,4 +303,89 @@
 .char-slot-filled {
     -fx-border-color: #00eaff;
     -fx-effect: dropshadow(gaussian, #00eaff, 15, 0.4, 0, 0);
+}
+
+/* === SISTEMA DE DICAS (LIFELINES) === */
+
+.hint-button {
+    -fx-font-family: 'Press Start 2P';
+    -fx-font-size: 10px;
+    -fx-background-radius: 0;
+    -fx-border-width: 3;
+    -fx-cursor: hand;
+    -fx-pref-width: 200;
+    -fx-pref-height: 45;
+    -fx-text-fill: white;
+    -fx-alignment: CENTER;
+}
+
+/* 1. Ligar (Otacon/Metal Gear - Azul Técnico) */
+.hint-call {
+    -fx-background-color: #2c3e50;
+    -fx-border-color: #3498db;
+}
+
+.hint-call:hover {
+    -fx-background-color: #3498db;
+}
+
+/* 2. Universitários (Roxo Místico) */
+.hint-students {
+    -fx-background-color: #4a148c;
+    -fx-border-color: #ea80fc;
+}
+
+.hint-students:hover {
+    -fx-background-color: #ea80fc;
+    -fx-text-fill: black;
+}
+
+/* 3. PODER SAGRADO DO ABACATE (Verde Radioativo Brilhante) */
+.hint-avocado {
+    -fx-background-color: #1b5e20;
+    -fx-border-color: #00ff00;
+    -fx-effect: dropshadow(gaussian, #00ff00, 10, 0.6, 0, 0);
+}
+
+.hint-avocado:hover {
+    -fx-background-color: #00ff00;
+    -fx-text-fill: black;
+    -fx-effect: dropshadow(gaussian, #00ff00, 20, 0.8, 0, 0);
+}
+
+/* Dica Usada (Desabilitada) */
+.hint-used {
+    -fx-background-color: #222;
+    -fx-border-color: #444;
+    -fx-text-fill: #555;
+    -fx-opacity: 0.8;
+    -fx-effect: none;
+    -fx-cursor: default;
+}
+
+/* === NOVO: MODO INFINITY (AJUSTADO PARA MENOS NEON) === */
+
+.diff-infinity {
+    -fx-border-color: #ffd700;
+    /* Ouro puro */
+    -fx-text-fill: #ffd700;
+}
+
+.diff-infinity:hover {
+    -fx-background-color: #332b00;
+    /* Dourado bem escuro */
+}
+
+.diff-infinity:selected {
+    /* Gradiente mais suave e elegante (menos brilhante) */
+    -fx-background-color: linear-gradient(to right, #8B6508, #DAA520, #8B6508);
+
+    /* Texto branco para melhor contraste */
+    -fx-text-fill: #ffffff;
+
+    /* Borda dourada */
+    -fx-border-color: #ffd700;
+
+    /* Glow reduzido pela metade (mais nítido) */
+    -fx-effect: dropshadow(gaussian, #ffd700, 15, 0.5, 0, 0);
 }

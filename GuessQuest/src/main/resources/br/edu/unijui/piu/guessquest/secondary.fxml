@@ -17,70 +17,56 @@
     <VBox styleClass="crt-overlay" mouseTransparent="true" />
 
     <BorderPane styleClass="arcade-container" maxWidth="1400" maxHeight="1000">
+        
         <top>
-            <!-- 
-                CORREÇÃO DO HEADER:
-                1. Removido o estilo inline fixo de cor.
-                2. Adicionadas classes específicas (header-lives, header-score, etc).
-                3. Reduzido o 'spacing' do HBox de 50 para 20.
-                4. As 'Region' com hgrow="ALWAYS" agora farão o trabalho pesado de espaçamento.
-            -->
-            <HBox alignment="CENTER" spacing="20" styleClass="header-box" style="-fx-padding: 40 20 0 20;">
-                
-                <!-- VIDAS: Vermelho -->
-                <Label fx:id="lblLives" text="VIDAS: ♥ ♥ ♥" styleClass="header-text, header-lives" minWidth="150" />
-                
+            <HBox alignment="CENTER" spacing="20" style="-fx-padding: 0 0 20 0;">
+                <Label fx:id="lblLives" text="VIDAS: ♥ ♥ ♥ ♥ ♥" styleClass="header-text, header-lives" />
                 <Region HBox.hgrow="ALWAYS" />
-                
-                <!-- PONTOS: Branco -->
+                <VBox alignment="CENTER">
+                    <Label fx:id="lblPhase" text="FASE: 01-15" styleClass="header-text, header-phase" />
+                    <Label fx:id="lblPlayer" text="PLAYER 1" styleClass="header-text" style="-fx-font-size: 12px; -fx-text-fill: #aaa;" />
+                </VBox>
+                <Region HBox.hgrow="ALWAYS" />
                 <Label fx:id="lblScore" text="PONTOS: 000000" styleClass="header-text, header-score" />
-                
-                <Region HBox.hgrow="ALWAYS" />
-                
-                <!-- FASE: Amarelo -->
-                <Label fx:id="lblPhase" text="FASE: 1-15" styleClass="header-text, header-phase" />
-                
-                <Region HBox.hgrow="ALWAYS" />
-                
-                <!-- PLAYER: Ciano -->
-                <Label fx:id="lblPlayer" text="PLAYER: AAAA" styleClass="header-text, header-player" />
-            
             </HBox>
         </top>
 
         <center>
-            <VBox alignment="CENTER" spacing="20">
-                <Label text="QUE JOGO É ESTE?" styleClass="title-text" style="-fx-font-size: 30px;" />
+            <VBox alignment="CENTER" spacing="15">
                 
-                <StackPane styleClass="game-image-box" maxHeight="350" maxWidth="600">
-                    <ImageView fx:id="gameImage" fitWidth="600" fitHeight="350" preserveRatio="true" />
-                    <VBox fx:id="loadingLayer" alignment="CENTER" style="-fx-background-color: black;" visible="false">
-                        <Label text="LOADING..." styleClass="blink-text" style="-fx-text-fill: white; -fx-font-size: 24px;"/>
+                <StackPane>
+                    <ImageView fx:id="gameImage" fitWidth="600" fitHeight="350" preserveRatio="true" style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);" />
+                    
+                    <VBox fx:id="loadingLayer" alignment="CENTER" style="-fx-background-color: rgba(0,0,0,0.85);" visible="false">
+                        <Label text="LOADING..." style="-fx-text-fill: #00ff00; -fx-font-family: 'Press Start 2P'; -fx-font-size: 24px;" />
                     </VBox>
                 </StackPane>
 
-                <Label fx:id="lblFeedback" text="" styleClass="blink-text" minHeight="30" style="-fx-font-size: 18px;"/>
+                <Label fx:id="lblFeedback" text="" minHeight="40" style="-fx-font-size: 16px; -fx-text-alignment: CENTER;" wrapText="true"/>
 
-                <!-- 
-                    BOTÕES:
-                    Adicionadas classes btn-opt-a, btn-opt-b, etc para colorir cada um diferentemente.
-                -->
-                <GridPane alignment="CENTER" hgap="20" vgap="15" style="-fx-padding: 10;">
+                <GridPane alignment="CENTER" hgap="20" vgap="15" style="-fx-padding: 5;">
                      <columnConstraints>
                         <ColumnConstraints percentWidth="45" />
                         <ColumnConstraints percentWidth="45" />
-                    </columnConstraints>
-                    
-                    <Button fx:id="btnA" text="A) OPTION 1" onAction="#handleAnswer" styleClass="game-button, btn-opt-a" maxWidth="Infinity" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                     </columnConstraints>
+                     <Button fx:id="btnA" text="A) OPTION 1" onAction="#handleAnswer" styleClass="game-button, btn-opt-a" maxWidth="Infinity" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                     <Button fx:id="btnB" text="B) OPTION 2" onAction="#handleAnswer" styleClass="game-button, btn-opt-b" maxWidth="Infinity" GridPane.columnIndex="1" GridPane.rowIndex="0" />
                     <Button fx:id="btnC" text="C) OPTION 3" onAction="#handleAnswer" styleClass="game-button, btn-opt-c" maxWidth="Infinity" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                     <Button fx:id="btnD" text="D) OPTION 4" onAction="#handleAnswer" styleClass="game-button, btn-opt-d" maxWidth="Infinity" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                 </GridPane>
+
+                <HBox alignment="CENTER" spacing="15" style="-fx-padding: 15 0 0 0;">
+                    <Button fx:id="btnHintCall" text="📞 LIGAR (OTACON)" onAction="#useHintCall" styleClass="hint-button, hint-call"/>
+                    <Button fx:id="btnHintStudents" text="🎓 UNIVERSITÁRIOS" onAction="#useHintStudents" styleClass="hint-button, hint-students"/>
+                    <Button fx:id="btnHintAvocado" text="🥑 PODER ABACATE" onAction="#useHintAvocado" styleClass="hint-button, hint-avocado"/>
+                </HBox>
+
             </VBox>
         </center>
         
         <bottom>
             <VBox minHeight="30" />
         </bottom>
+
     </BorderPane>
 </StackPane>

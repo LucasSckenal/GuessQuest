@@ -1,16 +1,20 @@
 package br.edu.unijui.piu.guessquest;
 
 /**
- * Singleton para gerenciar o estado global do jogo (Vidas, Pontos, Configurações).
+ * Singleton para gerenciar o estado global do jogo (Vidas, Pontos,
+ * Configurações).
  */
 public class GameState {
-    
+
     private static GameState instance;
 
     public enum Difficulty {
-        NORMAL(5, 1.0, "80,100"), // Mais vidas, jogos aclamados
-        HARD(3, 1.5, "60,100"),   // Menos vidas, jogos bons
-        SOULS(1, 2.0, "1,100");   // 1 vida, qualquer jogo (incluindo ruins/desconhecidos)
+        NORMAL(5, 1.0, "80,100"),
+        HARD(3, 1.5, "60,100"),
+        SOULS(1, 2.0, "1,100"),
+
+        // --- NOVO MODO SECRETO ---
+        INFINITY(99, 10.0, "1,100");
 
         final int initialLives;
         final double scoreMultiplier;
@@ -29,11 +33,16 @@ public class GameState {
     private int currentScore;
     private int currentPhase;
 
+    // --- VARIÁVEIS DE DICAS ---
+    private boolean hintCallUsed;
+    private boolean hintStudentsUsed;
+    private boolean hintAvocadoUsed;
+
     private GameState() {
-        // Valores padrão
         this.difficulty = Difficulty.NORMAL;
         this.currentScore = 0;
         this.currentPhase = 1;
+        resetHints();
     }
 
     public static GameState getInstance() {
@@ -47,21 +56,78 @@ public class GameState {
         this.currentLives = this.difficulty.initialLives;
         this.currentScore = 0;
         this.currentPhase = 1;
+        resetHints();
     }
 
-    // Getters e Setters
-    public String getPlayerName() { return playerName; }
-    public void setPlayerName(String playerName) { this.playerName = playerName; }
+    private void resetHints() {
+        this.hintCallUsed = false;
+        this.hintStudentsUsed = false;
+        this.hintAvocadoUsed = false;
+    }
 
-    public Difficulty getDifficulty() { return difficulty; }
-    public void setDifficulty(Difficulty difficulty) { this.difficulty = difficulty; }
+    // Getters e Setters das Dicas
+    public boolean isHintCallUsed() {
+        return hintCallUsed;
+    }
 
-    public int getCurrentLives() { return currentLives; }
-    public void decreaseLife() { this.currentLives--; }
+    public void setHintCallUsed(boolean used) {
+        this.hintCallUsed = used;
+    }
 
-    public int getCurrentScore() { return currentScore; }
-    public void addScore(int points) { this.currentScore += (points * difficulty.scoreMultiplier); }
+    public boolean isHintStudentsUsed() {
+        return hintStudentsUsed;
+    }
 
-    public int getCurrentPhase() { return currentPhase; }
-    public void nextPhase() { this.currentPhase++; }
+    public void setHintStudentsUsed(boolean used) {
+        this.hintStudentsUsed = used;
+    }
+
+    public boolean isHintAvocadoUsed() {
+        return hintAvocadoUsed;
+    }
+
+    public void setHintAvocadoUsed(boolean used) {
+        this.hintAvocadoUsed = used;
+    }
+
+    // Getters e Setters existentes
+    public String getPlayerName() {
+        return playerName;
+    }
+
+    public void setPlayerName(String playerName) {
+        this.playerName = playerName;
+    }
+
+    public Difficulty getDifficulty() {
+        return difficulty;
+    }
+
+    public void setDifficulty(Difficulty difficulty) {
+        this.difficulty = difficulty;
+    }
+
+    public int getCurrentLives() {
+        return currentLives;
+    }
+
+    public void decreaseLife() {
+        this.currentLives--;
+    }
+
+    public int getCurrentScore() {
+        return currentScore;
+    }
+
+    public void addScore(int points) {
+        this.currentScore += (points * difficulty.scoreMultiplier);
+    }
+
+    public int getCurrentPhase() {
+        return currentPhase;
+    }
+
+    public void nextPhase() {
+        this.currentPhase++;
+    }
 }

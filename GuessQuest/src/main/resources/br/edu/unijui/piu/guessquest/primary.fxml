@@ -26,46 +26,43 @@
                         <Label text="ENTER INITIALS" styleClass="label-retro" style="-fx-font-size: 20px;"/>
                         
                         <StackPane>
-                            <TextField fx:id="nameField" opacity="0" maxWidth="280" maxHeight="50"/>
+                            <TextField fx:id="nameField" opacity="0" maxWidth="300" />
                             
                             <HBox alignment="CENTER" spacing="15" mouseTransparent="true">
-                                <Label fx:id="slot1" styleClass="char-slot" />
-                                <Label fx:id="slot2" styleClass="char-slot" />
-                                <Label fx:id="slot3" styleClass="char-slot" />
-                                <Label fx:id="slot4" styleClass="char-slot" />
+                                <Label fx:id="slot1" text="_" styleClass="char-slot"/>
+                                <Label fx:id="slot2" text="_" styleClass="char-slot"/>
+                                <Label fx:id="slot3" text="_" styleClass="char-slot"/>
+                                <Label fx:id="slot4" text="_" styleClass="char-slot"/>
                             </HBox>
                         </StackPane>
-                        
-                        <Label text="MAX 4 LETTERS" style="-fx-text-fill: #666; -fx-font-size: 14px;"/>
                     </VBox>
                     
-                    <Button fx:id="btnNext" text="NEXT >>" onAction="#goToDifficulty" styleClass="btn-start" prefWidth="250"/>
+                    <Button text="CONFIRM" onAction="#confirmName" styleClass="btn-start" prefWidth="300" prefHeight="60"/>
                 </VBox>
 
-                <VBox fx:id="screenDifficulty" alignment="CENTER" spacing="25" visible="false">
-                    <Label text="SELECT SKILL LEVEL" styleClass="label-retro" style="-fx-font-size: 20px; -fx-text-fill: white;"/>
+                <VBox fx:id="screenDifficulty" alignment="CENTER" spacing="30" visible="false">
+                    <Label text="SELECT DIFFICULTY" styleClass="label-retro"/>
                     
                     <VBox alignment="CENTER" spacing="15">
-                        <ToggleButton fx:id="tglNormal" text="NORMAL MODE" selected="true" toggleGroup="$difficultyGroup" 
-                                      styleClass="diff-toggle, diff-normal"/>
-                        <ToggleButton fx:id="tglHard" text="HARD MODE" toggleGroup="$difficultyGroup" 
-                                      styleClass="diff-toggle, diff-hard"/>
-                        <ToggleButton fx:id="tglSouls" text="SOULS MODE" toggleGroup="$difficultyGroup" 
-                                      styleClass="diff-toggle, diff-souls"/>
+                        <ToggleButton fx:id="tglNormal" text="NORMAL" toggleGroup="$difficultyGroup" styleClass="diff-toggle, diff-normal" selected="true"/>
+                        <ToggleButton fx:id="tglHard" text="HARD" toggleGroup="$difficultyGroup" styleClass="diff-toggle, diff-hard"/>
+                        <ToggleButton fx:id="tglSouls" text="SOULS" toggleGroup="$difficultyGroup" styleClass="diff-toggle, diff-souls"/>
+                        
+                        <ToggleButton fx:id="tglInfinity" text="∞ INFINITY" toggleGroup="$difficultyGroup" styleClass="diff-toggle, diff-infinity" visible="false" managed="false"/>
                     </VBox>
 
-                    <HBox alignment="CENTER" spacing="20" style="-fx-padding: 20 0 0 0;">
-                         <Button text="&lt; BACK" onAction="#backToName" styleClass="btn-exit" prefWidth="160"/>
-                         <Button text="START" onAction="#startGame" styleClass="btn-start" prefWidth="200"/>
+                    <HBox alignment="CENTER" spacing="20">
+                        <Button text="&lt; BACK" onAction="#backToNameInput" styleClass="btn-exit" prefWidth="150" prefHeight="50"/>
+                        <Button text="START GAME" onAction="#startGame" styleClass="btn-start" prefWidth="250" prefHeight="50"/>
                     </HBox>
                 </VBox>
 
-                <VBox fx:id="screenSettings" alignment="CENTER" spacing="30" visible="false">
-                    <Label text="SOUND TEST" styleClass="title-text" style="-fx-font-size: 24px; -fx-text-fill: #ffcc00;"/>
+                <VBox fx:id="screenSettings" alignment="CENTER" spacing="30" visible="false" styleClass="settings-panel" maxWidth="600" maxHeight="500">
+                    <Label text="SERVICE MENU" styleClass="label-retro" style="-fx-text-fill: #00eaff;"/>
                     
-                    <VBox alignment="CENTER" spacing="20" style="-fx-padding: 20; -fx-border-color: #444; -fx-border-width: 2;">
+                    <VBox spacing="20" alignment="CENTER">
                         <HBox alignment="CENTER" spacing="20">
-                            <Label text="BGM VOLUME" styleClass="label-retro" minWidth="120"/>
+                            <Label text="MUSIC VOLUME" styleClass="label-retro" minWidth="120"/>
                             <Slider fx:id="volumeMusicSlider" styleClass="retro-slider" prefWidth="200"/>
                         </HBox>
                         
@@ -90,13 +87,10 @@
                 </HBox>
 
                 <VBox alignment="CENTER" spacing="10">
-                    <Label text="v1.5 STYLE REFINING" style="-fx-text-fill: #666; -fx-font-size: 15px;" />
+                    <Label text="v1.8 FINAL" style="-fx-text-fill: #666; -fx-font-size: 15px;" />
                 </VBox>
             </VBox>
         </bottom>
 
     </BorderPane>
-
-    <VBox styleClass="crt-overlay" mouseTransparent="true" />
-
 </StackPane>
