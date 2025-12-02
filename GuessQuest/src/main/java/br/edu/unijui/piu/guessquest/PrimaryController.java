@@ -63,6 +63,13 @@ public class PrimaryController {
 
         setupNameInput();
         setupCheatCode();
+
+        // Adiciona feedback sonoro ao selecionar a dificuldade
+        difficultyGroup.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                SoundManager.getInstance().playSound("select.wav");
+            }
+        });
     }
 
     // Lógica para evitar mais de 4 caracteres e atualizar os slots visuais
@@ -238,8 +245,8 @@ public class PrimaryController {
 
         // Esconde tudo o que está na tela principal
         screenNameInput.setVisible(false);
-        screenDifficulty.setVisible(false); // Caso esteja nessa tela
-        bottomMenu.setVisible(false); // Esconde os botões de baixo
+        screenDifficulty.setVisible(false);
+        bottomMenu.setVisible(false);
 
         // Mostra a tela de settings
         screenSettings.setVisible(true);

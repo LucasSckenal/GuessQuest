@@ -27,7 +27,7 @@ public class App extends Application {
             }
         });
 
-        stage.setTitle("Guess Quest Arcade");
+        stage.setTitle("Guess Quest");
         stage.setScene(scene);
         stage.setResizable(true);
         stage.show();
