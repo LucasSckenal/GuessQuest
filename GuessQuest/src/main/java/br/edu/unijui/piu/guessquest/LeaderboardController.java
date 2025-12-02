@@ -40,8 +40,7 @@ public class LeaderboardController {
             line.setAlignment(Pos.CENTER);
             line.getStyleClass().add("leaderboard-row");
             
-            // CORREÇÃO: Removemos a dependência do CSS para animação.
-            // Definimos o estado inicial aqui para garantir que a animação Java controle a visibilidade.
+            // Definido o estado visual inicial para animação
             line.setOpacity(0); 
             line.setTranslateY(20);
 
@@ -63,7 +62,7 @@ public class LeaderboardController {
 
             scoreBox.getChildren().add(line);
             
-            // ANIMAÇÃO JAVA (Garantido que funciona)
+            // Animação Java de entrada
             animateEntry(line, index * 0.15); // 0.15s de delay por item
 
             index++;
@@ -97,6 +96,10 @@ public class LeaderboardController {
 
     @FXML
     public void goBack() throws IOException {
+        
+        // Toca som de seleção para feedback ao usuário
+        SoundManager.getInstance().playSound("select.wav");
+
         App.setRoot("primary");
     }
 }

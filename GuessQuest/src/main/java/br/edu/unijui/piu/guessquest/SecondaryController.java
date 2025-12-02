@@ -31,10 +31,13 @@ public class SecondaryController {
     private static final Set<String> INVALID_EXACT_NAMES = new HashSet<>();
 
     static {
-        // ... (Mantém a lista INVALID_EXACT_NAMES original completa aqui) ...
         INVALID_EXACT_NAMES.add("PC");
         INVALID_EXACT_NAMES.add("PlayStation");
-        // (Adicione o restante da lista original para economizar espaço na resposta)
+        INVALID_EXACT_NAMES.add("Xbox");
+        INVALID_EXACT_NAMES.add("Nintendo");
+        INVALID_EXACT_NAMES.add("Mobile");
+        INVALID_EXACT_NAMES.add("Steam");
+        INVALID_EXACT_NAMES.add("Epic Games");
     }
 
     @FXML
@@ -108,6 +111,8 @@ public class SecondaryController {
             Button toRemove = wrongButtons.get(random.nextInt(wrongButtons.size()));
             disableButtonOption(toRemove);
 
+            // Feedback visual e sonoro
+            SoundManager.getInstance().playSound("hint.wav");
             lblFeedback.setText("OTACON: 'Hackeei o sistema! A opção " + getOptionLetter(toRemove) + " é falsa!'");
             lblFeedback.setStyle("-fx-text-fill: #3498db;"); // Azul
         }
@@ -146,6 +151,8 @@ public class SecondaryController {
             appendPercentToButton(btn, share);
         }
 
+        // Feedback visual e sonoro
+        SoundManager.getInstance().playSound("hint.wav");
         lblFeedback.setText("UNIVERSITÁRIOS: 'Acreditamos que seja a maior porcentagem...'");
         lblFeedback.setStyle("-fx-text-fill: #ea80fc;"); // Roxo
     }
@@ -170,12 +177,13 @@ public class SecondaryController {
             removedCount++;
         }
 
+        // Feedback visual e sonoro
+        SoundManager.getInstance().playSound("abacate.wav");
         lblFeedback.setText("ABACATE SAGRADO: 'A polpa divina eliminou as impurezas!'");
         lblFeedback.setStyle("-fx-text-fill: #00ff00; -fx-font-weight: bold;"); // Verde
     }
 
-    // --- Helpers das Dicas ---
-
+    // Atualiza o estilo do botão de dica para refletir se foi usado ou não
     private void updateHintButtonStyle(Button btn, boolean used) {
         if (used) {
             btn.setDisable(true);
@@ -242,10 +250,10 @@ public class SecondaryController {
         }
     }
 
-    // =========================================================================
-
+    // Lógica de carregamento de fase
     private void loadNextLevel() {
-        // ... (Mantém lógica anterior) ...
+
+        // Se passar da fase 15, termina o jogo
         if (state.getCurrentPhase() > 15) {
             endGame(true);
             return;
@@ -257,18 +265,20 @@ public class SecondaryController {
 
         new Thread(() -> {
             try {
-                // ... (Mantém lógica de fetch igual) ...
-                GameData levelData = fetchGameDataWithRetry(); // Refatorei para simplificar leitura
+                // Realiza o fetch com retries da próxima fase
+                GameData levelData = fetchGameDataWithRetry();
                 final GameData finalData = levelData;
                 Platform.runLater(() -> setupLevelUI(finalData));
             } catch (Exception e) {
+
+                // Caso for encontrado um problema na hora do fetch, usa dados de fallback (Pacman state) novamente para evitar com 100% dos casos softlock
                 e.printStackTrace();
                 Platform.runLater(() -> setupLevelUI(getEmergencyFallbackData()));
             }
         }).start();
     }
 
-    // Helper simples para retry
+    // Lógica do retry com fallback de emergência
     private GameData fetchGameDataWithRetry() throws Exception {
         GameData levelData = null;
         int attempts = 0;
@@ -287,6 +297,7 @@ public class SecondaryController {
         return levelData;
     }
 
+    // Configura a UI da fase com os dados recebidos
     private void setupLevelUI(GameData data) {
         if (data.imageUrl == null || data.imageUrl.isEmpty()) {
             loadNextLevel();
@@ -320,13 +331,13 @@ public class SecondaryController {
 
         resetButtonStyles();
 
-        // ATUALIZA O ESTADO DOS BOTÕES DE DICA (SE JÁ FORAM USADOS, FICAM
-        // DESABILITADOS)
+        // Atualiza os estados dos botões de ajuda (hints), caso já tenham sido usados, reflete na UI
         updateHintButtonStyle(btnHintCall, state.isHintCallUsed());
         updateHintButtonStyle(btnHintStudents, state.isHintStudentsUsed());
         updateHintButtonStyle(btnHintAvocado, state.isHintAvocadoUsed());
     }
 
+    // Lógica de resposta do jogador com sons
     @FXML
     private void handleAnswer(javafx.event.ActionEvent event) {
         if (interactionLocked)
@@ -361,6 +372,7 @@ public class SecondaryController {
         }
     }
 
+    // Agenda a próxima fase após um delay
     private void scheduleNextLevel(int delay) {
         new java.util.Timer().schedule(new java.util.TimerTask() {
             @Override
@@ -374,6 +386,7 @@ public class SecondaryController {
         }, delay);
     }
 
+    // Reseta os estilos dos botões de resposta (após cada fase) para o seu padrão
     private void resetButtonStyles() {
         String baseStyle = "game-button";
         resetSingleButton(btnA, baseStyle);
@@ -388,15 +401,11 @@ public class SecondaryController {
         btn.setStyle(""); // Reseta estilos inline (opacidade, cor de fundo)
     }
 
-    // ... (Mantém getEmergencyFallbackData, endGame e lógica de API/JSON inalterada
-    // abaixo) ...
-    // Vou incluir apenas os métodos de API para o código ficar compilável se você
-    // copiar tudo
-
+    // Método de fallback de emergência em caso de falha na API
     private GameData getEmergencyFallbackData() {
         GameData data = new GameData();
         data.correctName = "Pac-Man";
-        data.imageUrl = "https://media.rawg.io/media/games/b21/b21555abc69d04d9b5d7da855e70d858.jpg";
+        data.imageUrl = "https://i.imgur.com/EtVkAMm.jpeg"; // Imagem do IMGUR visto que o do API requer lógica mais complexa (e pois não é pra falhar po)
         data.options.add("Pac-Man");
         data.options.add("Tetris");
         data.options.add("Space Invaders");
@@ -405,6 +414,7 @@ public class SecondaryController {
         return data;
     }
 
+    // Lógica de término de jogo
     private void endGame(boolean win) {
         loadingLayer.setVisible(true);
         LeaderboardManager.saveScore(state.getPlayerName(), state.getCurrentScore());
@@ -433,6 +443,7 @@ public class SecondaryController {
         }, 4000);
     }
 
+    // Lógica de fetch dos dados da API
     private GameData fetchGameData(boolean forceSafePage) throws Exception {
         int pageBase;
         if (forceSafePage) {
@@ -460,7 +471,6 @@ public class SecondaryController {
     }
 
     // Classes internas GameData e GameCandidate e métodos de parseJsonManually
-    // permanecem iguais
     private static class GameData {
         String correctName = "API Error";
         String imageUrl;
@@ -477,10 +487,8 @@ public class SecondaryController {
         }
     }
 
+    // Lógica de parse manual do JSON (sem bibliotecas externas) para evitar que as escolhas tenham nome de plataforma ou gênero em vez do nome do jogo em si
     private GameData parseJsonManually(String json) {
-        // ... (CÓDIGO DE PARSE JSON PERMANECE O MESMO DO ARQUIVO ORIGINAL) ...
-        // Para economizar espaço, assuma que o código de parse está aqui.
-        // Se precisar, posso reenviar, mas a lógica de dicas não afeta isso.
 
         // Copiando a lógica básica para garantir funcionamento:
         GameData data = new GameData();
@@ -538,8 +546,9 @@ public class SecondaryController {
         return data;
     }
 
-    // ... Métodos auxiliares de parse (extractImageInRange, unescapeJava,
-    // isValidGameName) iguais ao original ...
+    // === MÉTODOS AUXILIARES DE PARSE === 
+
+    // Extrai a imagem de um trecho específico do JSON
     private String extractImageInRange(String json, int start, int end) {
         String snippet = json.substring(start, Math.min(end, json.length()));
         int idx = snippet.indexOf("\"background_image\":\"");
@@ -552,6 +561,7 @@ public class SecondaryController {
         return null;
     }
 
+    // Valida o nome do jogo para evitar plataformas, gêneros, etc
     private boolean isValidGameName(String name, String slug) {
         if (name == null || name.trim().isEmpty())
             return false;
@@ -570,6 +580,7 @@ public class SecondaryController {
         return true;
     }
 
+    // Desescapa sequências unicode simples e os transforma em caracteres normais
     private String unescapeJava(String st) {
         if (st == null)
             return "";

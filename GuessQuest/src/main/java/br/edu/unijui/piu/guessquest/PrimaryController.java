@@ -13,7 +13,7 @@ import javafx.util.Duration;
 
 public class PrimaryController {
 
-    // --- TELAS (CONTAINERS) ---
+    // --- TELAS (CONTAINERS) PARA CADA ESTADO ---
     @FXML
     private VBox screenNameInput;
     @FXML
@@ -23,7 +23,7 @@ public class PrimaryController {
     @FXML
     private VBox bottomMenu;
 
-    // --- TELA 1: NOME ---
+    // --- ESTADO TELA 1: NOME ---
     @FXML
     private TextField nameField;
     @FXML
@@ -32,7 +32,7 @@ public class PrimaryController {
 
     private StringBuilder cheatBuffer = new StringBuilder();
 
-    // --- TELA 2: DIFICULDADE ---
+    // --- ESTADO TELA 2: DIFICULDADE ---
     @FXML
     private ToggleGroup difficultyGroup;
     @FXML
@@ -40,7 +40,7 @@ public class PrimaryController {
     @FXML
     private ToggleButton tglInfinity;
 
-    // --- TELA 3: SETTINGS ---
+    // --- ESTADO TELA 3: SETTINGS ---
     @FXML
     private Slider volumeMusicSlider;
     @FXML
@@ -49,6 +49,7 @@ public class PrimaryController {
     @FXML
     private Label blinkLabel;
 
+    // Inicialização do controller
     @FXML
     public void initialize() {
         setupAudio();
@@ -64,6 +65,7 @@ public class PrimaryController {
         setupCheatCode();
     }
 
+    // Lógica para evitar mais de 4 caracteres e atualizar os slots visuais
     private void setupNameInput() {
         nameField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal.length() > 4) {
@@ -79,6 +81,7 @@ public class PrimaryController {
         });
     }
 
+    // Lógica para ser possível desbloquear o modo INFINITY com o cheat code "ABACATE" ao estilo trapaça código KONAMI
     private void setupCheatCode() {
         nameField.setOnKeyPressed((KeyEvent event) -> {
             String key = event.getText().toUpperCase();
@@ -92,8 +95,18 @@ public class PrimaryController {
         });
     }
 
+    // Método chamado quando o cheat code é detectado para alterar a UI e desbloquear o modo INFINITY
     private void unlockInfinityMode() {
         SoundManager.getInstance().playSound("correct.wav");
+
+        try {
+            Thread.sleep(300); // Pequena pausa antes de mostrar o desbloqueio
+            SoundManager.getInstance().playSound("abacate.wav");
+            
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         tglInfinity.setVisible(true);
         tglInfinity.setManaged(true);
         blinkLabel.setText("INFINITY UNLOCKED!");
@@ -101,6 +114,7 @@ public class PrimaryController {
         cheatBuffer.setLength(0);
     }
 
+    // Atualiza os "slots visuais" (espaço das letras para o nome) com os caracteres do nome em si
     private void updateNameSlots(String text) {
         char[] chars = text.toCharArray();
         slot1.setText(chars.length > 0 ? String.valueOf(chars[0]) : "_");
@@ -133,6 +147,7 @@ public class PrimaryController {
         blinkSlot(nextTarget);
     }
 
+    // Anima o cursor piscando no slot atual
     private void blinkSlot(Node target) {
         stopCursorBlink();
         cursorBlink = new FadeTransition(Duration.seconds(0.4), target);
@@ -143,6 +158,7 @@ public class PrimaryController {
         cursorBlink.play();
     }
 
+    // Para a animação de piscar do cursor
     private void stopCursorBlink() {
         if (cursorBlink != null) {
             cursorBlink.stop();
@@ -154,6 +170,7 @@ public class PrimaryController {
         slot4.setOpacity(1.0);
     }
 
+    // Configura os sliders de volume para música e efeitos sonoros
     private void setupAudio() {
         SoundManager sound = SoundManager.getInstance();
         volumeMusicSlider.setValue(sound.getMusicVolume() * 100);
@@ -163,6 +180,7 @@ public class PrimaryController {
         volumeSfxSlider.valueProperty().addListener((o, oldV, newV) -> sound.setSfxVolume(newV.doubleValue() / 100.0));
     }
 
+    // === LÓGICA DE TROCA DE TELA PARA INICIAR O JOGO ===
     @FXML
     private void confirmName() {
         String name = nameField.getText().trim();
@@ -174,6 +192,7 @@ public class PrimaryController {
         screenDifficulty.setVisible(true);
     }
 
+    // === LÓGICA DE TROCA DE TELA PARA VOLTAR AO MENU INICIAL ===
     @FXML
     private void backToNameInput() {
         SoundManager.getInstance().playSound("select.wav");
@@ -182,6 +201,8 @@ public class PrimaryController {
         Platform.runLater(() -> nameField.requestFocus());
     }
 
+    // === LÓGICA DE INÍCIO DO JOGO ===
+    // É trocado para a tela "secondary.fxml", que contém o jogo em si
     @FXML
     private void startGame() throws IOException {
         GameState.Difficulty selectedDiff = GameState.Difficulty.NORMAL;
@@ -195,19 +216,26 @@ public class PrimaryController {
         GameState.getInstance().setDifficulty(selectedDiff);
         GameState.getInstance().resetGame();
 
-        SoundManager.getInstance().playSound("start.wav");
+        SoundManager.getInstance().playSound("select.wav");
         App.setRoot("secondary");
     }
 
+    // === LÓGICA DE TROCA DE TELA PARA LEADERBOARD ===
+    // É trocado para a tela "leaderboard.fxml", que contém a tabela de pontuações
     @FXML
     private void showLeaderboard() throws IOException {
         SoundManager.getInstance().playSound("select.wav");
         App.setRoot("leaderboard");
     }
 
-    // === LÓGICA DE TROCA DE TELA PARA SETTINGS ===
+    // === LÓGICA DE TROCA DE "TELA" PARA SETTINGS ===
+    // Mostra a "tela" de settings (na verdade só um container que fica sobreposto)
     @FXML
     private void goToSettings() {
+
+        // Toca som de seleção para feedback ao usuário
+        SoundManager.getInstance().playSound("select.wav");
+
         // Esconde tudo o que está na tela principal
         screenNameInput.setVisible(false);
         screenDifficulty.setVisible(false); // Caso esteja nessa tela
@@ -218,8 +246,13 @@ public class PrimaryController {
         screenSettings.toFront();
     }
 
+    // Lógica para esconder a "tela" de settings e voltar para a tela inicial (com os elementos visíveis de novo)
     @FXML
     private void backToName() {
+
+        // Toca som de seleção para feedback ao usuário
+        SoundManager.getInstance().playSound("select.wav");
+
         // Esconde settings
         screenSettings.setVisible(false);
 
@@ -230,8 +263,19 @@ public class PrimaryController {
         Platform.runLater(() -> nameField.requestFocus());
     }
 
+    // Lógica para sair do aplicativo com som de feedback
     @FXML
     private void exitApp() {
+        
+        // Toca som de seleção para feedback ao usuário
+        SoundManager.getInstance().playSound("select.wav");
+
+        try {
+            Thread.sleep(500); // Espera meio segundo para o som tocar antes de fechar
+        } catch (InterruptedException e) {
+            e.printStackTrace(); // Só para fins de debug (eu realmente quero que o usuário veja (ou ouça nesse caso) o som tocar)
+        }
+
         Platform.exit();
         System.exit(0);
     }

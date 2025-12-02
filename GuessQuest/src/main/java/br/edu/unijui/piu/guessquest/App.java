@@ -33,7 +33,6 @@ public class App extends Application {
         stage.show();
 
         // INICIA MÚSICA DE FUNDO
-        // Certifique-se de ter o arquivo "bgm.mp3" na pasta de audio
         SoundManager.getInstance().playMusic("bgm.mp3");
     }
 

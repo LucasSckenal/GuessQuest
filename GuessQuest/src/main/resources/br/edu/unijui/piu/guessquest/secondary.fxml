@@ -56,7 +56,7 @@
                 </GridPane>
 
                 <HBox alignment="CENTER" spacing="15" style="-fx-padding: 15 0 0 0;">
-                    <Button fx:id="btnHintCall" text="📞 LIGAR (OTACON)" onAction="#useHintCall" styleClass="hint-button, hint-call"/>
+                    <Button fx:id="btnHintCall" text="📞 LIGAR P/ HACKER" onAction="#useHintCall" styleClass="hint-button, hint-call"/>
                     <Button fx:id="btnHintStudents" text="🎓 UNIVERSITÁRIOS" onAction="#useHintStudents" styleClass="hint-button, hint-students"/>
                     <Button fx:id="btnHintAvocado" text="🥑 PODER ABACATE" onAction="#useHintAvocado" styleClass="hint-button, hint-avocado"/>
                 </HBox>
