@@ -17,6 +17,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -25,53 +26,73 @@ import javafx.util.Duration;
 
 public class PrimaryController {
 
-    // --- TELAS (CONTAINERS) PARA CADA ESTADO ---
-    @FXML
-    private VBox screenNameInput;
-    @FXML
-    private VBox screenDifficulty;
-    @FXML
-    private VBox screenSettings;
-    @FXML
-    private VBox screenCredits;
-    @FXML
-    private VBox bottomMenu;
+    // Containers das diferentes telas do menu
+    @FXML private VBox screenNameInput;
+    @FXML private VBox screenDifficulty;
+    @FXML private VBox screenSettings;
+    @FXML private VBox screenCredits;
+    @FXML private VBox bottomMenu;
 
-    // --- ESTADO TELA 1: NOME ---
-    @FXML
-    private TextField nameField;
-    @FXML
-    private Label slot1, slot2, slot3, slot4;
+    // Elementos da interface sujeitos a tradução (Labels e Botões)
+    @FXML private Label blinkLabel; 
+    @FXML private Label lblEnterInitials;
+    @FXML private Button btnConfirmName;
+    
+    @FXML private Label lblSelectDiff;
+    @FXML private Button btnBackDiff;
+    @FXML private Button btnStartGame;
+    
+    @FXML private Label lblServiceMenu;
+    @FXML private Label lblMusicVol;
+    @FXML private Label lblSfxVol;
+    @FXML private Button btnLanguage;
+    @FXML private Button btnAboutTeam;
+    @FXML private Button btnBackSettings;
+    
+    @FXML private Label lblDevTeam;
+    @FXML private Label lblDevRole1;
+    @FXML private Label lblDevRole2;
+    @FXML private Label lblDevRole3;
+    @FXML private Button btnBackCredits;
+    
+    @FXML private Button btnRank;
+    @FXML private Button btnOptions;
+    @FXML private Button btnExit;
+    @FXML private Label lblF11Hint;
+
+    // Componentes de entrada de nome
+    @FXML private TextField nameField;
+    @FXML private Label slot1, slot2, slot3, slot4;
     private FadeTransition cursorBlink;
-
+    
+    // Variáveis para controle de códigos de trapaça (Easter Eggs)
     private StringBuilder cheatBuffer = new StringBuilder();
     private boolean isEasterEggActive = false;
 
-    // --- ESTADO TELA 2: DIFICULDADE ---
-    @FXML
-    private ToggleGroup difficultyGroup;
-    @FXML
-    private ToggleButton tglNormal, tglHard, tglSouls;
-    @FXML
-    private ToggleButton tglInfinity;
+    // Grupo de seleção de dificuldade
+    @FXML private ToggleGroup difficultyGroup;
+    @FXML private ToggleButton tglNormal, tglHard, tglSouls;
+    @FXML private ToggleButton tglInfinity;
 
-    // --- ESTADO TELA 3: SETTINGS ---
-    @FXML
-    private Slider volumeMusicSlider;
-    @FXML
-    private Slider volumeSfxSlider;
+    // Controles de volume
+    @FXML private Slider volumeMusicSlider;
+    @FXML private Slider volumeSfxSlider;
 
-    // --- ESTADO TELA 4: CREDITS (AVATARES) ---
+    // Imagens dos desenvolvedores
     @FXML private ImageView imgDev1, imgDev2, imgDev3;
 
-    @FXML
-    private Label blinkLabel;
-
-    // Inicialização do controller
+    /**
+     * Método de inicialização do controlador.
+     * Configura áudio, animações, inputs e carrega recursos iniciais.
+     */
     @FXML
     public void initialize() {
         setupAudio();
+        
+        // Aplica o idioma configurado no estado global
+        updateLanguageUI();
 
+        // Configura animação de piscar para o texto "Insert Coin"
         FadeTransition ft = new FadeTransition(Duration.seconds(0.8), blinkLabel);
         ft.setFromValue(1.0);
         ft.setToValue(0.1);
@@ -82,12 +103,12 @@ public class PrimaryController {
         setupNameInput();
         setupCheatCode();
 
-        // Carrega avatares do time (Exemplo usando GitHub - troque pelos users reais)
+        // Carrega avatares dos desenvolvedores
         loadDevAvatar(imgDev1, "Henrique-Fritz");
         loadDevAvatar(imgDev2, "LuanVitorCD");
         loadDevAvatar(imgDev3, "LucasSckenal");
 
-        // Adiciona feedback sonoro ao selecionar a dificuldade
+        // Adiciona som de feedback ao alterar a dificuldade
         difficultyGroup.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 SoundManager.getInstance().playSound("select.wav");
@@ -95,7 +116,80 @@ public class PrimaryController {
         });
     }
 
-    // Lógica para evitar mais de 4 caracteres e atualizar os slots visuais
+    /**
+     * Gerencia eventos de teclado globais no container raiz.
+     * Utilizado para atalhos de navegação como a tecla Enter.
+     */
+    @FXML
+    private void handleGlobalKey(KeyEvent event) {
+        if (event.getCode() == KeyCode.ENTER) {
+            
+            // Inicia o jogo se estiver na tela de seleção de dificuldade e não houver menus sobrepostos
+            if (screenDifficulty.isVisible() && !screenSettings.isVisible() && !screenCredits.isVisible()) {
+                try {
+                    startGame();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            // Confirma o nome se estiver na tela de entrada de iniciais
+            else if (screenNameInput.isVisible()) {
+                confirmName();
+            }
+        }
+    }
+
+    /**
+     * Alterna o idioma do jogo e atualiza a interface.
+     */
+    @FXML
+    private void toggleLanguage() {
+        GameState.getInstance().toggleLanguage();
+        SoundManager.getInstance().playSound("select.wav");
+        updateLanguageUI();
+    }
+
+    /**
+     * Atualiza os textos de todos os componentes da interface baseado no idioma atual.
+     */
+    private void updateLanguageUI() {
+        boolean isPT = GameState.getInstance().getLanguage() == GameState.Language.PT;
+
+        blinkLabel.setText(isPT ? "INSERIR FICHA" : "INSERT COIN");
+        lblEnterInitials.setText(isPT ? "DIGITE INICIAIS" : "ENTER INITIALS");
+        btnConfirmName.setText(isPT ? "CONFIRMAR" : "CONFIRM");
+        
+        lblSelectDiff.setText(isPT ? "SELECIONE DIFICULDADE" : "SELECT DIFFICULTY");
+        btnBackDiff.setText(isPT ? "< VOLTAR" : "< BACK");
+        btnStartGame.setText(isPT ? "INICIAR JOGO" : "START GAME");
+        
+        lblServiceMenu.setText(isPT ? "MENU DE SERVIÇO" : "SERVICE MENU");
+        lblMusicVol.setText(isPT ? "VOLUME MÚSICA" : "MUSIC VOLUME");
+        lblSfxVol.setText(isPT ? "VOLUME EFEITOS" : "SFX VOLUME");
+        btnLanguage.setText(isPT ? "IDIOMA: PORTUGUÊS" : "LANGUAGE: ENGLISH");
+        btnAboutTeam.setText(isPT ? "SOBRE A EQUIPE" : "ABOUT TEAM");
+        btnBackSettings.setText(isPT ? "< VOLTAR" : "< BACK");
+        
+        lblDevTeam.setText(isPT ? "EQUIPE DE DEV" : "DEVELOPMENT TEAM");
+        
+        String roleText = isPT ? "Ciência da Computação" : "Computer Science";
+        lblDevRole1.setText(roleText);
+        lblDevRole2.setText(roleText);
+        lblDevRole3.setText(roleText);
+
+        btnBackCredits.setText(isPT ? "< VOLTAR" : "< BACK");
+        
+        btnRank.setText(isPT ? "RANKING" : "RANK");
+        btnOptions.setText(isPT ? "OPÇÕES" : "OPTIONS");
+        btnExit.setText(isPT ? "SAIR" : "EXIT");
+
+        lblF11Hint.setText(isPT ? "PRESSIONE F11 PARA TELA CHEIA" : "PRESS F11 FOR FULLSCREEN");
+    }
+
+    /**
+     * Configura o comportamento do campo de texto para entrada de nome.
+     * Limita caracteres e gerencia os slots visuais.
+     */
     private void setupNameInput() {
         nameField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal.length() > 4) {
@@ -111,11 +205,14 @@ public class PrimaryController {
         });
     }
 
-    // === LÓGICA DE EASTER EGGS E CHEATS ===
+    /**
+     * Configura o listener para detecção de códigos de trapaça (Cheat Codes).
+     */
     private void setupCheatCode() {
         nameField.setOnKeyPressed((KeyEvent event) -> {
-            // Se já tem easter egg rodando, ignora input para evitar caos sonoro
             if (isEasterEggActive) return;
+
+            if (event.getCode() == KeyCode.ENTER) return;
 
             String key = event.getText().toUpperCase();
             if (key.matches("[A-Z]")) {
@@ -139,22 +236,26 @@ public class PrimaryController {
         });
     }
 
-    // Easter Egg só de áudio (Lori) com trava de tempo
+    /**
+     * Ativa um easter egg somente de áudio.
+     */
     private void triggerAudioOnlyEasterEgg(String soundFile, String message) {
-        isEasterEggActive = true; // Trava
+        isEasterEggActive = true; 
         cheatBuffer.setLength(0);
         
         SoundManager.getInstance().playSound(soundFile);
         showToastMessage(message);
 
-        // Destrava após 2 segundos
         PauseTransition unlock = new PauseTransition(Duration.seconds(2));
         unlock.setOnFinished(e -> isEasterEggActive = false);
         unlock.play();
     }
 
+    /**
+     * Inicia o processo de buscar e exibir uma imagem de animal (Easter Egg).
+     */
     private void triggerAnimalEasterEgg(String type) {
-        isEasterEggActive = true; // Trava
+        isEasterEggActive = true; 
         cheatBuffer.setLength(0);
 
         String soundFile = type + ".wav";
@@ -164,6 +265,9 @@ public class PrimaryController {
         new Thread(() -> fetchAndShowAnimalImage(type)).start();
     }
 
+    /**
+     * Realiza a chamada à API correspondente para buscar a imagem do animal.
+     */
     private void fetchAndShowAnimalImage(String type) {
         String apiUrl = "";
         switch (type) {
@@ -182,7 +286,7 @@ public class PrimaryController {
             if (imageUrl != null) {
                 Platform.runLater(() -> displayEasterEggImage(imageUrl));
             } else {
-                unlockSpam(); // Destrava se falhar
+                unlockSpam();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -195,53 +299,44 @@ public class PrimaryController {
         isEasterEggActive = false;
     }
 
-    // Extrator simples de URL do JSON (para as 3 APIs usadas)
+    /**
+     * Extrai a URL da imagem a partir do JSON de resposta das APIs.
+     */
     private String extractUrlFromJson(String json) {
-        // Regex unificado que captura tanto "url" quanto "message"
         Pattern p = Pattern.compile("\"(url|message)\":\"([^\"]+)\"");
         Matcher m = p.matcher(json);
         
-        // Itera sobre TODAS as ocorrências encontradas
         while (m.find()) {
             String rawUrl = m.group(2);
             String cleanUrl = rawUrl.replace("\\/", "/");
             String lowerUrl = cleanUrl.toLowerCase();
 
-            // Força HTTPS para evitar problemas de mixed content (API do pato retorna HTTP)
             if (cleanUrl.startsWith("http:")) {
                 cleanUrl = cleanUrl.replace("http:", "https:");
             }
 
-            // Valida se o link termina com extensão de imagem
             if (lowerUrl.endsWith(".jpg") || lowerUrl.endsWith(".jpeg") || 
                 lowerUrl.endsWith(".png") || lowerUrl.endsWith(".gif")) {
-                System.out.println(cleanUrl);
                 return cleanUrl;
             }
         }
         return null;
     }
 
-    // Mostra a imagem na tela por cima de tudo
+    /**
+     * Exibe a imagem do Easter Egg sobre a interface com animações.
+     */
     private void displayEasterEggImage(String url) {
-        // Cria a imagem
         ImageView eggView = new ImageView(new Image(url));
-        
-        // FORÇA UM TAMANHO PADRÃO FIXO (500x400)
         eggView.setFitWidth(500);
         eggView.setFitHeight(400);
-        
-        // Mantém a proporção fixa para evitar distorções
         eggView.setPreserveRatio(false);
-        
         eggView.setStyle("-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 20, 0, 0, 0);");
 
-        // Adiciona ao StackPane pai (para ficar por cima do input de nome)
         if (screenNameInput.getParent() instanceof Pane) {
             Pane parent = (Pane) screenNameInput.getParent();
             parent.getChildren().add(eggView);
 
-            // Animação de entrada (Fade In + Scale)
             eggView.setOpacity(0);
             eggView.setScaleX(0.5);
             eggView.setScaleY(0.5);
@@ -249,17 +344,16 @@ public class PrimaryController {
             FadeTransition fadeIn = new FadeTransition(Duration.seconds(0.5), eggView);
             fadeIn.setToValue(1.0);
             
-            // Remove a imagem depois de 3 segundos
             PauseTransition delay = new PauseTransition(Duration.seconds(3));
             delay.setOnFinished(e -> {
                 FadeTransition fadeOut = new FadeTransition(Duration.seconds(0.5), eggView);
                 fadeOut.setToValue(0);
                 fadeOut.setOnFinished(ev -> {
                     parent.getChildren().remove(eggView);
-                    isEasterEggActive = false; // Destrava input
+                    isEasterEggActive = false;
                 });
                 fadeOut.play();
-                blinkLabel.setText("INSERT COIN"); // Restaura texto original
+                blinkLabel.setText("INSERT COIN");
             });
 
             fadeIn.play();
@@ -267,17 +361,24 @@ public class PrimaryController {
         }
     }
     
-    // Pequena mensagem temporária para feedback do "Lori"
+    /**
+     * Exibe uma mensagem temporária na label principal.
+     */
     private void showToastMessage(String msg) {
          blinkLabel.setText(msg);
          PauseTransition delay = new PauseTransition(Duration.seconds(2));
-         delay.setOnFinished(e -> blinkLabel.setText("INSERT COIN"));
+         delay.setOnFinished(e -> {
+            boolean isPT = GameState.getInstance().getLanguage() == GameState.Language.PT;
+            blinkLabel.setText(isPT ? "INSERIR FICHA" : "INSERT COIN");
+         });
          delay.play();
     }
 
-    // Método chamado quando o cheat code é detectado para alterar a UI e desbloquear o modo INFINITY
+    /**
+     * Desbloqueia o modo de dificuldade Infinity.
+     */
     private void unlockInfinityMode() {
-        isEasterEggActive = true; // Trava brevemente
+        isEasterEggActive = true; 
         cheatBuffer.setLength(0);
         SoundManager.getInstance().playSound("correct.wav");
         try {
@@ -290,28 +391,22 @@ public class PrimaryController {
         blinkLabel.setText("INFINITY UNLOCKED!");
         blinkLabel.setStyle("-fx-text-fill: #ffd700; -fx-effect: dropshadow(gaussian, #B8860B, 10, 0.0, 0, 0);");
         
-        // Destrava input
         PauseTransition unlock = new PauseTransition(Duration.seconds(1));
         unlock.setOnFinished(e -> isEasterEggActive = false);
         unlock.play();
     }
 
-    // === LÓGICA DE AVATARES DO TIME (GITHUB) ===
+    /**
+     * Configura a imagem do avatar recortada em formato circular.
+     */
     private void loadDevAvatar(ImageView imgView, String githubUser) {
-        // Cria recorte circular
-        Circle clip = new Circle(50, 50, 50); // Raio 50 (Imagem 100x100)
+        Circle clip = new Circle(50, 50, 50);
         imgView.setClip(clip);
-        
-        // URL Padrão do GitHub: https://github.com/usuario.png
         String url = "https://github.com/" + githubUser + ".png";
-        
-        // Carregamento em background (true)
         Image img = new Image(url, true);
-
         imgView.setImage(img);
     }
 
-    // === NAVEGAÇÃO SETTINGS / CREDITS ===
     @FXML
     private void goToCredits() {
         SoundManager.getInstance().playSound("select.wav");
@@ -327,7 +422,9 @@ public class PrimaryController {
         screenSettings.setVisible(true);
     }
 
-    // Atualiza os "slots visuais" (espaço das letras para o nome) com os caracteres do nome em si
+    /**
+     * Atualiza os slots visuais de caracteres do nome conforme o usuário digita.
+     */
     private void updateNameSlots(String text) {
         char[] chars = text.toCharArray();
         slot1.setText(chars.length > 0 ? String.valueOf(chars[0]) : "_");
@@ -340,27 +437,22 @@ public class PrimaryController {
         slot3.getStyleClass().remove("char-slot-filled");
         slot4.getStyleClass().remove("char-slot-filled");
 
-        if (chars.length > 0)
-            slot1.getStyleClass().add("char-slot-filled");
-        if (chars.length > 1)
-            slot2.getStyleClass().add("char-slot-filled");
-        if (chars.length > 2)
-            slot3.getStyleClass().add("char-slot-filled");
-        if (chars.length > 3)
-            slot4.getStyleClass().add("char-slot-filled");
+        if (chars.length > 0) slot1.getStyleClass().add("char-slot-filled");
+        if (chars.length > 1) slot2.getStyleClass().add("char-slot-filled");
+        if (chars.length > 2) slot3.getStyleClass().add("char-slot-filled");
+        if (chars.length > 3) slot4.getStyleClass().add("char-slot-filled");
 
         Node nextTarget = slot1;
-        if (chars.length == 1)
-            nextTarget = slot2;
-        else if (chars.length == 2)
-            nextTarget = slot3;
-        else if (chars.length >= 3)
-            nextTarget = slot4;
+        if (chars.length == 1) nextTarget = slot2;
+        else if (chars.length == 2) nextTarget = slot3;
+        else if (chars.length >= 3) nextTarget = slot4;
 
         blinkSlot(nextTarget);
     }
 
-    // Anima o cursor piscando no slot atual
+    /**
+     * Inicia a animação de cursor piscando no slot alvo.
+     */
     private void blinkSlot(Node target) {
         stopCursorBlink();
         cursorBlink = new FadeTransition(Duration.seconds(0.4), target);
@@ -371,7 +463,6 @@ public class PrimaryController {
         cursorBlink.play();
     }
 
-    // Para a animação de piscar do cursor
     private void stopCursorBlink() {
         if (cursorBlink != null) {
             cursorBlink.stop();
@@ -383,7 +474,9 @@ public class PrimaryController {
         slot4.setOpacity(1.0);
     }
 
-    // Configura os sliders de volume para música e efeitos sonoros
+    /**
+     * Inicializa os sliders de volume com os valores atuais do SoundManager.
+     */
     private void setupAudio() {
         SoundManager sound = SoundManager.getInstance();
         volumeMusicSlider.setValue(sound.getMusicVolume() * 100);
@@ -392,24 +485,20 @@ public class PrimaryController {
                 .addListener((o, oldV, newV) -> sound.setMusicVolume(newV.doubleValue() / 100.0));
         volumeSfxSlider.valueProperty().addListener((o, oldV, newV) -> sound.setSfxVolume(newV.doubleValue() / 100.0));
 
-        // Feedback sonoro ao ajustar os sliders
         volumeMusicSlider.setOnMouseReleased(e -> sound.playSound("select.wav"));
         volumeSfxSlider.setOnMouseReleased(e -> sound.playSound("select.wav"));
     }
 
-    // === LÓGICA DE TROCA DE TELA PARA INICIAR O JOGO ===
     @FXML
     private void confirmName() {
         String name = nameField.getText().trim();
-        if (name.isEmpty())
-            return;
+        if (name.isEmpty()) return;
         GameState.getInstance().setPlayerName(name.toUpperCase());
         SoundManager.getInstance().playSound("select.wav");
         screenNameInput.setVisible(false);
         screenDifficulty.setVisible(true);
     }
 
-    // === LÓGICA DE TROCA DE TELA PARA VOLTAR AO MENU INICIAL ===
     @FXML
     private void backToNameInput() {
         SoundManager.getInstance().playSound("select.wav");
@@ -418,17 +507,12 @@ public class PrimaryController {
         Platform.runLater(() -> nameField.requestFocus());
     }
 
-    // === LÓGICA DE INÍCIO DO JOGO ===
-    // É trocado para a tela "secondary.fxml", que contém o jogo em si
     @FXML
     private void startGame() throws IOException {
         GameState.Difficulty selectedDiff = GameState.Difficulty.NORMAL;
-        if (tglHard.isSelected())
-            selectedDiff = GameState.Difficulty.HARD;
-        else if (tglSouls.isSelected())
-            selectedDiff = GameState.Difficulty.SOULS;
-        else if (tglInfinity.isSelected())
-            selectedDiff = GameState.Difficulty.INFINITY;
+        if (tglHard.isSelected()) selectedDiff = GameState.Difficulty.HARD;
+        else if (tglSouls.isSelected()) selectedDiff = GameState.Difficulty.SOULS;
+        else if (tglInfinity.isSelected()) selectedDiff = GameState.Difficulty.INFINITY;
 
         GameState.getInstance().setDifficulty(selectedDiff);
         GameState.getInstance().resetGame();
@@ -437,62 +521,37 @@ public class PrimaryController {
         App.setRoot("secondary");
     }
 
-    // === LÓGICA DE TROCA DE TELA PARA LEADERBOARD ===
-    // É trocado para a tela "leaderboard.fxml", que contém a tabela de pontuações
     @FXML
     private void showLeaderboard() throws IOException {
         SoundManager.getInstance().playSound("select.wav");
         App.setRoot("leaderboard");
     }
 
-    // === LÓGICA DE TROCA DE "TELA" PARA SETTINGS ===
-    // Mostra a "tela" de settings (na verdade só um container que fica sobreposto)
     @FXML
     private void goToSettings() {
-
-        // Toca som de seleção para feedback ao usuário
         SoundManager.getInstance().playSound("select.wav");
-
-        // Esconde tudo o que está na tela principal
         screenNameInput.setVisible(false);
         screenDifficulty.setVisible(false);
         bottomMenu.setVisible(false);
-
-        // Mostra a tela de settings
         screenSettings.setVisible(true);
         screenSettings.toFront();
     }
 
-    // Lógica para esconder a "tela" de settings e voltar para a tela inicial (com os elementos visíveis de novo)
     @FXML
     private void backToName() {
-
-        // Toca som de seleção para feedback ao usuário
         SoundManager.getInstance().playSound("select.wav");
-
-        // Esconde settings
         screenSettings.setVisible(false);
-
-        // Restaura a tela inicial
         screenNameInput.setVisible(true);
-        bottomMenu.setVisible(true); // Traz os botões de volta
-
+        bottomMenu.setVisible(true);
         Platform.runLater(() -> nameField.requestFocus());
     }
 
-    // Lógica para sair do aplicativo com som de feedback
     @FXML
     private void exitApp() {
-        
-        // Toca som de seleção para feedback ao usuário
         SoundManager.getInstance().playSound("select.wav");
-
         try {
-            Thread.sleep(500); // Espera meio segundo para o som tocar antes de fechar
-        } catch (InterruptedException e) {
-            e.printStackTrace(); // Só para fins de debug (eu realmente quero que o usuário veja (ou ouça nesse caso) o som tocar)
-        }
-
+            Thread.sleep(500); 
+        } catch (InterruptedException e) { e.printStackTrace(); }
         Platform.exit();
         System.exit(0);
     }

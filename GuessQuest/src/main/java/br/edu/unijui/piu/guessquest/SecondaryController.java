@@ -22,12 +22,23 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 
+/**
+ * Controlador responsável pela lógica principal do jogo (Gameplay).
+ * Gerencia o ciclo de vida das fases, interação com a API externa (RAWG),
+ * sistema de dicas, pontuação e transição entre níveis.
+ */
 public class SecondaryController {
 
+    // --- Configurações da API ---
     private static final String API_KEY = "e6234549ffcb449f9502ec12c04a4201";
+    // Template de URL para busca de jogos, ordenados por popularidade e filtrados por metacritic
     private static final String API_URL_TEMPLATE = "https://api.rawg.io/api/games?key=%s&ordering=-added&metacritic=%s&page_size=40&page=%d";
 
+    // --- Controle de Sessão ---
+    // Armazena jogos já jogados para evitar repetições na mesma partida
     private static final Set<String> gamesPlayedThisSession = new HashSet<>();
+    
+    // Lista de termos ou nomes genéricos que devem ser invalidados como respostas
     private static final Set<String> INVALID_EXACT_NAMES = new HashSet<>();
 
     static {
@@ -40,53 +51,82 @@ public class SecondaryController {
         INVALID_EXACT_NAMES.add("Epic Games");
     }
 
-    @FXML
-    private Label lblPhase;
-    @FXML
-    private Label lblScore;
-    @FXML
-    private Label lblLives;
-    @FXML
-    private Label lblPlayer;
-    @FXML
-    private ImageView gameImage;
-    @FXML
-    private Button btnA, btnB, btnC, btnD;
-    @FXML
-    private Label lblFeedback;
-    @FXML
-    private VBox loadingLayer;
+    // --- Elementos de Interface ---
+    @FXML private Label lblPhase;
+    @FXML private Label lblScore;
+    @FXML private Label lblLives;
+    @FXML private Label lblPlayer;
+    @FXML private ImageView gameImage;
+    @FXML private Button btnA, btnB, btnC, btnD; // Botões de opção de resposta
+    @FXML private Label lblFeedback; // Área de mensagens para o usuário
+    @FXML private VBox loadingLayer; // Overlay de carregamento
+    @FXML private Label lblLoading;
+    @FXML private Button btnQuit;
 
-    // NOVOS BOTÕES DE DICA
-    @FXML
-    private Button btnHintCall;
-    @FXML
-    private Button btnHintStudents;
-    @FXML
-    private Button btnHintAvocado;
+    // --- Botões de Dicas ---
+    @FXML private Button btnHintCall;
+    @FXML private Button btnHintStudents;
+    @FXML private Button btnHintAvocado;
+    
+    // --- Controles de Áudio na HUD ---
+    @FXML private Button btnMuteMusic;
+    @FXML private Button btnMuteSfx;
 
+    // --- Estado Interno ---
     private GameState state;
     private String correctGameName;
     private final Random random = new Random();
-    private boolean interactionLocked = false;
+    private boolean interactionLocked = false; // Previne múltiplos cliques durante animações
+    private boolean isPT = false; // Cache local da preferência de idioma
 
+    /**
+     * Inicializa o controlador da cena de jogo.
+     * Configura o estado inicial, idioma e carrega o primeiro nível.
+     */
     @FXML
     public void initialize() {
         state = GameState.getInstance();
+        isPT = state.getLanguage() == GameState.Language.PT;
+        
+        // Limpa histórico de jogos ao iniciar uma nova partida (Fase 1)
         if (state.getCurrentPhase() == 1) {
             gamesPlayedThisSession.clear();
         }
+        
+        updateMuteButtonsVisuals();
+        updateStaticInterfaceText();
         updateUIHeader();
         loadNextLevel();
     }
 
-    private void updateUIHeader() {
-        // TRADUZIDO: UI Header
-        lblPlayer.setText("PLAYER: " + state.getPlayerName());
-        lblPhase.setText(String.format("PHASE: %02d-15", state.getCurrentPhase()));
-        lblScore.setText(String.format("SCORE: %06d", state.getCurrentScore()));
+    /**
+     * Atualiza os textos fixos da interface (botões de dica, sair) conforme o idioma.
+     */
+    private void updateStaticInterfaceText() {
+        if (isPT) {
+            btnHintCall.setText("📞 LIGAR (OTACON)");
+            btnHintStudents.setText("🎓 UNIVERSITÁRIOS");
+            btnHintAvocado.setText("🥑 PODER DO ABACATE");
+            btnQuit.setText("SAIR DO JOGO");
+            lblLoading.setText("CARREGANDO...");
+        } else {
+            btnHintCall.setText("📞 CALL (OTACON)");
+            btnHintStudents.setText("🎓 STUDENTS");
+            btnHintAvocado.setText("🥑 AVOCADO POWER");
+            btnQuit.setText("QUIT GAME");
+            lblLoading.setText("LOADING...");
+        }
+    }
 
-        StringBuilder livesStr = new StringBuilder("LIVES: ");
+    /**
+     * Atualiza o cabeçalho (HUD) com informações vitais: Vidas, Fase, Pontuação e Nome.
+     */
+    private void updateUIHeader() {
+        lblPlayer.setText((isPT ? "JOGADOR: " : "PLAYER: ") + state.getPlayerName());
+        lblPhase.setText(String.format((isPT ? "FASE: %02d-15" : "PHASE: %02d-15"), state.getCurrentPhase()));
+        lblScore.setText(String.format((isPT ? "PONTOS: %06d" : "SCORE: %06d"), state.getCurrentScore()));
+
+        StringBuilder livesStr = new StringBuilder(isPT ? "VIDAS: " : "LIVES: ");
         for (int i = 0; i < state.getCurrentLives(); i++) {
             livesStr.append("♥ ");
         }
@@ -94,108 +134,160 @@ public class SecondaryController {
     }
 
     // =========================================================================
-    // LÓGICA DE SAÍDA E DICAS
+    // LÓGICA DE CONTROLE DE ÁUDIO (HUD)
     // =========================================================================
+    
+    /**
+     * Alterna o estado de mudo da música de fundo e atualiza o ícone visual.
+     */
+    @FXML
+    private void toggleMusic() {
+        SoundManager.getInstance().toggleMusicMute();
+        updateMuteButtonsVisuals();
+        // Remove foco do botão para evitar acionamento acidental com Teclado/Enter
+        btnMuteMusic.getParent().requestFocus();
+    }
+    
+    /**
+     * Alterna o estado de mudo dos efeitos sonoros (SFX) e atualiza o ícone visual.
+     */
+    @FXML
+    private void toggleSfx() {
+        SoundManager.getInstance().toggleSfxMute();
+        updateMuteButtonsVisuals();
+        btnMuteSfx.getParent().requestFocus();
+    }
+    
+    /**
+     * Atualiza o texto e opacidade dos botões de áudio com base no estado atual do SoundManager.
+     */
+    private void updateMuteButtonsVisuals() {
+        boolean musicMuted = SoundManager.getInstance().isMusicMuted();
+        boolean sfxMuted = SoundManager.getInstance().isSfxMuted();
+        
+        btnMuteMusic.setText(musicMuted ? "❌" : "♪");
+        btnMuteMusic.setStyle(musicMuted ? "-fx-opacity: 0.5;" : "-fx-opacity: 1.0;");
+        
+        btnMuteSfx.setText(sfxMuted ? "🔇" : "🔊");
+        btnMuteSfx.setStyle(sfxMuted ? "-fx-opacity: 0.5;" : "-fx-opacity: 1.0;");
+    }
 
-    // NOVO: Botão de Sair no meio do jogo
+    /**
+     * Aborta o jogo atual e retorna ao menu principal.
+     */
     @FXML
     private void exitToMenu() throws IOException {
         SoundManager.getInstance().playSound("select.wav");
-        // Poderia adicionar lógica de salvar pontuação parcial aqui se desejado
         App.setRoot("primary");
     }
 
+    // =========================================================================
+    // SISTEMA DE DICAS (POWER-UPS)
+    // =========================================================================
+
+    /**
+     * Dica: Ligar para Otacon.
+     * Elimina uma opção incorreta aleatória.
+     */
     @FXML
     private void useHintCall() {
-        if (state.isHintCallUsed() || interactionLocked)
-            return;
+        if (state.isHintCallUsed() || interactionLocked) return;
 
-        // Marca como usada
         state.setHintCallUsed(true);
         updateHintButtonStyle(btnHintCall, true);
 
-        // Lógica: Remove 1 alternativa errada aleatória
         List<Button> wrongButtons = getActiveWrongButtons();
         if (!wrongButtons.isEmpty()) {
             Button toRemove = wrongButtons.get(random.nextInt(wrongButtons.size()));
             disableButtonOption(toRemove);
-
-            // Feedback visual e sonoro
             SoundManager.getInstance().playSound("hint.wav");
-            // TRADUZIDO: Otacon Dialogue
-            lblFeedback.setText("OTACON: 'System hacked! Option " + getOptionLetter(toRemove) + " is false!'");
+            
+            String msg = isPT 
+                ? "OTACON: 'Sistema hackeado! A opção " + getOptionLetter(toRemove) + " é falsa!'"
+                : "OTACON: 'System hacked! Option " + getOptionLetter(toRemove) + " is false!'";
+            
+            lblFeedback.setText(msg);
             lblFeedback.setStyle("-fx-text-fill: #3498db;");
         }
     }
 
+    /**
+     * Dica: Universitários.
+     * Atribui porcentagens de probabilidade às opções, favorecendo a correta.
+     */
     @FXML
     private void useHintStudents() {
-        if (state.isHintStudentsUsed() || interactionLocked)
-            return;
+        if (state.isHintStudentsUsed() || interactionLocked) return;
 
         state.setHintStudentsUsed(true);
         updateHintButtonStyle(btnHintStudents, true);
 
-        // Lógica: Atribui % (Correta entre 40-70%, restante distribuído)
-        int correctPercent = 40 + random.nextInt(31); // 40 a 70
+        // Define chance da resposta correta entre 40% e 70%
+        int correctPercent = 40 + random.nextInt(31); 
         int remainingPercent = 100 - correctPercent;
 
         List<Button> wrongs = getActiveWrongButtons();
         Button correctBtn = getCorrectButton();
 
-        // Atualiza botão correto
         if (correctBtn != null) {
             appendPercentToButton(correctBtn, correctPercent);
         }
 
-        // Distribui o resto entre os errados
+        // Distribui o restante da porcentagem entre as erradas
         for (int i = 0; i < wrongs.size(); i++) {
             Button btn = wrongs.get(i);
             int share;
             if (i == wrongs.size() - 1) {
-                share = remainingPercent; // O último pega o que sobrou
+                share = remainingPercent; 
             } else {
-                share = random.nextInt(remainingPercent / 2); // Pega um pedaço pequeno
+                share = random.nextInt(remainingPercent / 2); 
                 remainingPercent -= share;
             }
             appendPercentToButton(btn, share);
         }
 
-        // Feedback visual e sonoro
         SoundManager.getInstance().playSound("hint.wav");
-        // TRADUZIDO: Students Dialogue
-        lblFeedback.setText("STUDENTS: 'We believe it's the highest percentage...'");
+        String msg = isPT
+            ? "UNIVERSITÁRIOS: 'Acreditamos que seja a maior porcentagem...'"
+            : "STUDENTS: 'We believe it's the highest percentage...'";
+        
+        lblFeedback.setText(msg);
         lblFeedback.setStyle("-fx-text-fill: #ea80fc;");
     }
 
+    /**
+     * Dica: Poder do Abacate.
+     * Elimina duas opções incorretas aleatórias.
+     */
     @FXML
     private void useHintAvocado() {
-        if (state.isHintAvocadoUsed() || interactionLocked)
-            return;
+        if (state.isHintAvocadoUsed() || interactionLocked) return;
 
         state.setHintAvocadoUsed(true);
         updateHintButtonStyle(btnHintAvocado, true);
 
-        // Lógica: O Poder do Abacate remove 2 erradas!
         List<Button> wrongs = getActiveWrongButtons();
-        Collections.shuffle(wrongs); // Embaralha para ser aleatório
+        Collections.shuffle(wrongs); 
 
         int removedCount = 0;
         for (Button btn : wrongs) {
-            if (removedCount >= 2)
-                break;
+            if (removedCount >= 2) break;
             disableButtonOption(btn);
             removedCount++;
         }
 
-        // Feedback visual e sonoro
         SoundManager.getInstance().playSound("abacate.wav");
-        // TRADUZIDO: Avocado Dialogue
-        lblFeedback.setText("HOLY AVOCADO: 'The divine pulp has eliminated the impurities!'");
+        String msg = isPT
+            ? "SANTO ABACATE: 'A polpa divina eliminou as impurezas!'"
+            : "HOLY AVOCADO: 'The divine pulp has eliminated the impurities!'";
+            
+        lblFeedback.setText(msg);
         lblFeedback.setStyle("-fx-text-fill: #00ff00; -fx-font-weight: bold;");
     }
 
-    // Atualiza o estilo do botão de dica para refletir se foi usado ou não
+    /**
+     * Atualiza o estilo visual do botão de dica (ativo ou usado/desabilitado).
+     */
     private void updateHintButtonStyle(Button btn, boolean used) {
         if (used) {
             btn.setDisable(true);
@@ -205,6 +297,8 @@ public class SecondaryController {
             btn.getStyleClass().remove("hint-used");
         }
     }
+
+    // --- Métodos Auxiliares para Manipulação de Botões ---
 
     private List<Button> getActiveWrongButtons() {
         List<Button> list = new ArrayList<>();
@@ -216,14 +310,10 @@ public class SecondaryController {
     }
 
     private Button getCorrectButton() {
-        if (isCorrect(btnA))
-            return btnA;
-        if (isCorrect(btnB))
-            return btnB;
-        if (isCorrect(btnC))
-            return btnC;
-        if (isCorrect(btnD))
-            return btnD;
+        if (isCorrect(btnA)) return btnA;
+        if (isCorrect(btnB)) return btnB;
+        if (isCorrect(btnC)) return btnC;
+        if (isCorrect(btnD)) return btnD;
         return null;
     }
 
@@ -238,13 +328,9 @@ public class SecondaryController {
         return cleanText.equalsIgnoreCase(correctGameName);
     }
 
-    // Limpa o texto do botão removendo prefixos e porcentagens
     private String cleanButtonText(String text) {
-        // Remove "A) ", "B) " iniciais
+        // Remove prefixos "A) " e sufixos de porcentagem "(50%)" para comparação
         String temp = text.length() > 3 ? text.substring(3) : text;
-
-        // Remove APENAS a porcentagem da dica (ex: " (50%)") no final da string usando
-        // Regex.
         return temp.replaceAll("\\s*\\(\\d+%\\)$", "").trim();
     }
 
@@ -264,39 +350,40 @@ public class SecondaryController {
     }
 
     // =========================================================================
-    // LÓGICA DE RESPOSTA E REVELAÇÃO
+    // LÓGICA DE GERENCIAMENTO DE NÍVEL E API
     // =========================================================================
 
+    /**
+     * Inicia o carregamento assíncrono do próximo nível.
+     * Verifica se o jogo acabou (venceu após 15 fases).
+     */
     private void loadNextLevel() {
-
-        // Se passar da fase 15, termina o jogo
         if (state.getCurrentPhase() > 15) {
             endGame(true);
             return;
         }
 
         interactionLocked = true;
-        // TRADUZIDO: Loading
-        lblFeedback.setText("LOADING DATA...");
+        lblFeedback.setText(isPT ? "CARREGANDO DADOS..." : "LOADING DATA...");
         loadingLayer.setVisible(true);
 
+        // Executa busca de dados em thread separada para não travar a UI
         new Thread(() -> {
             try {
-                // Realiza o fetch com retries da próxima fase
                 GameData levelData = fetchGameDataWithRetry();
                 final GameData finalData = levelData;
                 Platform.runLater(() -> setupLevelUI(finalData));
             } catch (Exception e) {
-
-                // Caso for encontrado um problema na hora do fetch, usa dados de fallback
-                // (Pacman state) novamente para evitar com 100% dos casos softlock
                 e.printStackTrace();
                 Platform.runLater(() -> setupLevelUI(getEmergencyFallbackData()));
             }
         }).start();
     }
 
-    // Lógica do retry com fallback de emergência
+    /**
+     * Tenta buscar dados válidos da API com até 3 tentativas.
+     * Se falhar, utiliza uma página segura (página 1).
+     */
     private GameData fetchGameDataWithRetry() throws Exception {
         GameData levelData = null;
         int attempts = 0;
@@ -315,10 +402,12 @@ public class SecondaryController {
         return levelData;
     }
 
-    // Configura a UI da fase com os dados recebidos
+    /**
+     * Configura a interface com os dados do jogo carregado (Imagem e Opções).
+     */
     private void setupLevelUI(GameData data) {
         if (data.imageUrl == null || data.imageUrl.isEmpty()) {
-            loadNextLevel();
+            loadNextLevel(); // Tenta carregar outro se a imagem for inválida
             return;
         }
 
@@ -330,6 +419,7 @@ public class SecondaryController {
         gamesPlayedThisSession.add(data.correctName);
 
         try {
+            // Carrega imagem em background (segundo parâmetro true)
             gameImage.setImage(new Image(data.imageUrl, true));
         } catch (Exception e) {
             loadNextLevel();
@@ -337,6 +427,7 @@ public class SecondaryController {
         }
 
         List<String> options = data.options;
+        // Completa opções se a API não retornou suficientes
         int backupCount = 1;
         while (options.size() < 4) {
             options.add("Mystery Game " + backupCount++);
@@ -349,56 +440,54 @@ public class SecondaryController {
 
         resetButtonStyles();
 
-        // Atualiza os estados dos botões de ajuda (hints), caso já tenham sido usados,
-        // reflete na UI
+        // Atualiza estado visual dos botões de dica
         updateHintButtonStyle(btnHintCall, state.isHintCallUsed());
         updateHintButtonStyle(btnHintStudents, state.isHintStudentsUsed());
         updateHintButtonStyle(btnHintAvocado, state.isHintAvocadoUsed());
     }
 
-    // Lógica de resposta do jogador com sons
+    /**
+     * Processa a resposta do usuário ao clicar em um botão.
+     * Verifica vitória/derrota e atualiza pontuação e vidas.
+     */
     @FXML
     private void handleAnswer(javafx.event.ActionEvent event) {
-        if (interactionLocked)
-            return;
+        if (interactionLocked) return;
 
         Button clickedButton = (Button) event.getSource();
-        String selectedAnswer = cleanButtonText(clickedButton.getText()); // Usa o helper novo que limpa %
+        String selectedAnswer = cleanButtonText(clickedButton.getText());
 
         interactionLocked = true;
-
         boolean isWin = selectedAnswer.equalsIgnoreCase(correctGameName);
 
-        // REVELA O TABULEIRO ANTES DE TUDO
         revealBoard(clickedButton);
 
         if (isWin) {
-            // TRADUZIDO: Correto
-            lblFeedback.setText("CORRECT! +1000 PTS");
+            lblFeedback.setText(isPT ? "CORRETO! +1000 PTS" : "CORRECT! +1000 PTS");
             lblFeedback.setStyle("-fx-text-fill: #00ff00;");
             SoundManager.getInstance().playSound("correct.wav");
+            
             state.addScore(1000);
-
-            // Aguarda um pouco para o jogador curtir o acerto
             scheduleNextLevel(1500);
         } else {
-            // TRADUZIDO: Errado
-            lblFeedback.setText("WRONG! LIFE LOST");
+            lblFeedback.setText(isPT ? "ERRADO! PERDEU VIDA" : "WRONG! LIFE LOST");
             lblFeedback.setStyle("-fx-text-fill: #ff3333;");
             SoundManager.getInstance().playSound("wrong.wav");
+            
             state.decreaseLife();
             updateUIHeader();
 
             if (state.getCurrentLives() <= 0) {
                 endGame(false);
             } else {
-                // Aguarda um pouco mais no erro para ver a resposta correta
-                scheduleNextLevel(2500);
+                scheduleNextLevel(2500); // Delay maior para ver o erro
             }
         }
     }
 
-    // Revela o tabuleiro com cores corretas/erradas
+    /**
+     * Revela a resposta correta e a escolhida no tabuleiro.
+     */
     private void revealBoard(Button clickedButton) {
         List<Button> allButtons = new ArrayList<>();
         allButtons.add(btnA);
@@ -408,27 +497,26 @@ public class SecondaryController {
 
         for (Button btn : allButtons) {
             if (isCorrect(btn)) {
-                // Mostra em verde a resposta certa (independente se foi ou não clicada)
                 if (!btn.getStyleClass().contains("btn-correct")) {
                     btn.getStyleClass().add("btn-correct");
                 }
                 btn.setOpacity(1.0);
             } else if (btn == clickedButton) {
-
-                // Mostra em vermelho somente a que o jogador clicou errado
+                // Marca como errado se foi o clicado
                 if (!btn.getStyleClass().contains("btn-wrong")) {
                     btn.getStyleClass().add("btn-wrong");
                 }
                 btn.setOpacity(1.0);
             } else {
-
-                // As outras erradas ficam meio apagadas para dar foco na certa (e evitar a tela
-                // parecer uma árvore de natal)
+                // Esmaece as outras opções
                 btn.setStyle("-fx-opacity: 0.3;");
             }
         }
     }
 
+    /**
+     * Agenda a execução do carregamento do próximo nível após um delay.
+     */
     private void scheduleNextLevel(int delay) {
         new java.util.Timer().schedule(new java.util.TimerTask() {
             @Override
@@ -442,7 +530,9 @@ public class SecondaryController {
         }, delay);
     }
 
-    // Reseta os estilos dos botões de resposta (após cada fase) para o seu padrão
+    /**
+     * Reseta estilos e estados dos botões de opção para o padrão.
+     */
     private void resetButtonStyles() {
         String baseStyle = "game-button";
         resetSingleButton(btnA, baseStyle);
@@ -452,22 +542,19 @@ public class SecondaryController {
     }
 
     private void resetSingleButton(Button btn, String style) {
-        // Isso remove as classes btn-correct/btn-wrong e restaura o padrão
         btn.getStyleClass().setAll(style);
         btn.setDisable(false);
-        btn.setStyle(""); // Limpa estilos inline (opacidade, etc)
+        btn.setStyle(""); 
         btn.setOpacity(1.0);
     }
 
-    // =========================================================================
-    // API FETCH E HELPERS (Mantidos iguais)
-    // =========================================================================
-
+    /**
+     * Fornece dados de fallback (segurança) caso a API falhe completamente.
+     */
     private GameData getEmergencyFallbackData() {
         GameData data = new GameData();
         data.correctName = "Pac-Man";
-        data.imageUrl = "https://i.imgur.com/EtVkAMm.jpeg"; // Imagem do IMGUR visto que o do API requer lógica mais
-                                                            // complexa (e pois não é pra falhar po)
+        data.imageUrl = "https://i.imgur.com/EtVkAMm.jpeg"; 
         data.options.add("Pac-Man");
         data.options.add("Tetris");
         data.options.add("Space Invaders");
@@ -476,23 +563,25 @@ public class SecondaryController {
         return data;
     }
 
-    // Lógica de término de jogo
+    /**
+     * Finaliza a sessão de jogo (Vitória ou Game Over).
+     * Salva a pontuação no Leaderboard e retorna ao menu.
+     */
     private void endGame(boolean win) {
         loadingLayer.setVisible(true);
         LeaderboardManager.saveScore(state.getPlayerName(), state.getCurrentScore());
 
         if (win) {
-            // TRADUZIDO: Win
-            lblFeedback.setText("CONGRATULATIONS! YOU BEAT THE GAME!");
+            lblFeedback.setText(isPT ? "PARABENS! VOCE ZEROU!" : "CONGRATULATIONS! YOU BEAT THE GAME!");
             lblFeedback.setStyle("-fx-text-fill: gold;");
             SoundManager.getInstance().playSound("win.wav");
         } else {
-            // TRADUZIDO: Lose (Game Over é universal)
             lblFeedback.setText("GAME OVER");
             lblFeedback.setStyle("-fx-text-fill: red;");
             SoundManager.getInstance().playSound("gameover.wav");
         }
 
+        // Aguarda 4 segundos antes de voltar ao menu
         new java.util.Timer().schedule(new java.util.TimerTask() {
             @Override
             public void run() {
@@ -507,20 +596,26 @@ public class SecondaryController {
         }, 4000);
     }
 
-    // Lógica de fetch dos dados da API
+    /**
+     * Realiza a requisição HTTP à API RAWG para buscar jogos.
+     * Implementa lógica de paginação aleatória para variedade.
+     */
     private GameData fetchGameData(boolean forceSafePage) throws Exception {
         int pageBase;
         if (forceSafePage) {
             pageBase = 1;
         } else {
+            // Randomiza a página para não pegar sempre os mesmos jogos populares
             pageBase = random.nextInt(50) + 1;
             if (state.getCurrentPhase() > 5)
                 pageBase += 100;
+            // Modo Souls busca jogos muito obscuros (paginas distantes)
             if (state.getDifficulty() == GameState.Difficulty.SOULS)
                 pageBase = random.nextInt(500) + 1;
         }
 
         String metacriticFilter = state.getDifficulty().metacriticRange;
+        // Facilita busca em fases avançadas para garantir que existam jogos
         if ((state.getCurrentPhase() > 10 && state.getDifficulty() != GameState.Difficulty.SOULS) || forceSafePage) {
             metacriticFilter = "50,100";
         }
@@ -534,7 +629,8 @@ public class SecondaryController {
         return parseJsonManually(response.body());
     }
 
-    // Classes internas GameData e GameCandidate e métodos de parseJsonManually
+    // --- Classes Internas de Dados ---
+    
     private static class GameData {
         String correctName = "API Error";
         String imageUrl;
@@ -551,23 +647,28 @@ public class SecondaryController {
         }
     }
 
-    // Lógica de parse manual do JSON (sem bibliotecas externas) para evitar que as
-    // escolhas tenham nome de plataforma ou gênero em vez do nome do jogo em si
+    /**
+     * Realiza o parse manual do JSON retornado pela API.
+     * Extrai slug, nome e imagem, e seleciona um jogo correto e 3 errados.
+     */
     private GameData parseJsonManually(String json) {
-
-        // Copiando a lógica básica para garantir funcionamento:
         GameData data = new GameData();
         List<GameCandidate> candidates = new ArrayList<>();
+        
+        // Regex para encontrar blocos de jogos
         Pattern gamePattern = Pattern.compile("\"slug\":\"(?<slug>[^\"]+)\"[^\\{\\[]*?\"name\":\"(?<name>[^\"]+)\"");
         Matcher matcher = gamePattern.matcher(json);
         List<Integer> matchEnds = new ArrayList<>();
         List<String> tempNames = new ArrayList<>();
         List<String> tempSlugs = new ArrayList<>();
+        
         while (matcher.find()) {
             tempSlugs.add(matcher.group("slug"));
             tempNames.add(unescapeJava(matcher.group("name")));
             matchEnds.add(matcher.end());
         }
+        
+        // Processa candidatos encontrados
         for (int i = 0; i < tempNames.size(); i++) {
             String name = tempNames.get(i);
             String slug = tempSlugs.get(i);
@@ -575,14 +676,16 @@ public class SecondaryController {
             int limit = (i < matchEnds.size() - 1) ? matchEnds.get(i + 1) : json.length();
             if (limit - currentEnd > 2000)
                 limit = currentEnd + 2000;
+                
             if (isValidGameName(name, slug)) {
                 String image = extractImageInRange(json, currentEnd, limit);
                 candidates.add(new GameCandidate(name, image));
             }
         }
-        if (candidates.isEmpty())
-            return data;
+        
+        if (candidates.isEmpty()) return data;
 
+        // Filtra candidatos já jogados
         List<GameCandidate> available = new ArrayList<>();
         for (GameCandidate cand : candidates) {
             boolean hasImage = cand.image != null && !cand.image.isEmpty() && !cand.image.equals("null");
@@ -590,15 +693,17 @@ public class SecondaryController {
                 available.add(cand);
             }
         }
-        if (available.isEmpty())
-            available = candidates;
+        // Se todos foram jogados, reseta pool
+        if (available.isEmpty()) available = candidates;
 
+        // Seleciona o vencedor
         int correctIndex = random.nextInt(available.size());
         GameCandidate correctGame = available.get(correctIndex);
         data.correctName = correctGame.name;
         data.imageUrl = correctGame.image;
         data.options.add(correctGame.name);
 
+        // Seleciona os 3 errados do resto da lista
         List<String> wrongPool = new ArrayList<>();
         for (GameCandidate cand : candidates) {
             if (!cand.name.equals(correctGame.name))
@@ -607,13 +712,14 @@ public class SecondaryController {
         Collections.shuffle(wrongPool);
         for (int k = 0; k < 3 && k < wrongPool.size(); k++)
             data.options.add(wrongPool.get(k));
+            
         Collections.shuffle(data.options);
         return data;
     }
 
-    // === MÉTODOS AUXILIARES DE PARSE ===
-
-    // Extrai a imagem de um trecho específico do JSON
+    /**
+     * Extrai a URL da imagem de background de um trecho JSON usando substrings.
+     */
     private String extractImageInRange(String json, int start, int end) {
         String snippet = json.substring(start, Math.min(end, json.length()));
         int idx = snippet.indexOf("\"background_image\":\"");
@@ -626,16 +732,16 @@ public class SecondaryController {
         return null;
     }
 
-    // Valida o nome do jogo para evitar plataformas, gêneros, etc
+    /**
+     * Valida nomes de jogos para remover entradas indesejadas (DLCs, Soundtracks, nomes com caracteres inválidos).
+     */
     private boolean isValidGameName(String name, String slug) {
-        if (name == null || name.trim().isEmpty())
-            return false;
-        if (name.matches(".*\\p{InCyrillic}.*"))
-            return false;
-        if (INVALID_EXACT_NAMES.contains(name))
-            return false;
-        if (name.matches(".*[^\\x00-\\x7F\\p{L}\\p{N}\\s\\p{P}].*") && !name.matches(".*[áéíóúãõçÁÉÍÓÚÃÕÇ].*"))
-            return false;
+        if (name == null || name.trim().isEmpty()) return false;
+        if (name.matches(".*\\p{InCyrillic}.*")) return false; // Remove Russo
+        if (INVALID_EXACT_NAMES.contains(name)) return false;
+        // Filtra caracteres estranhos (mantendo acentos comuns)
+        if (name.matches(".*[^\\x00-\\x7F\\p{L}\\p{N}\\s\\p{P}].*") && !name.matches(".*[áéíóúãõçÁÉÍÓÚÃÕÇ].*")) return false;
+        
         String lowerName = name.toLowerCase();
         if (lowerName.contains("playstation") || lowerName.contains("xbox") || lowerName.equals("pc") ||
                 lowerName.contains("soundtrack") || lowerName.contains("dlc") || lowerName.contains("bundle") ||
@@ -645,10 +751,11 @@ public class SecondaryController {
         return true;
     }
 
-    // Desescapa sequências unicode simples e os transforma em caracteres normais
+    /**
+     * Decodifica caracteres Unicode escapados em strings JSON.
+     */
     private String unescapeJava(String st) {
-        if (st == null)
-            return "";
+        if (st == null) return "";
         return st.replace("\\u0027", "'").replace("\\u0026", "&").replace("\\/", "/").replace("\\", "");
     }
 }

@@ -5,7 +5,13 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.image.ImageView?>
 
-<StackPane xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="br.edu.unijui.piu.guessquest.PrimaryController" styleClass="root">
+<!-- Adicionado onKeyPressed para lidar com o Enter Globalmente -->
+<StackPane xmlns="http://javafx.com/javafx/8.0.171" 
+           xmlns:fx="http://javafx.com/fxml/1" 
+           fx:controller="br.edu.unijui.piu.guessquest.PrimaryController" 
+           styleClass="root"
+           fx:id="rootStack"
+           onKeyPressed="#handleGlobalKey">
 
     <fx:define>
         <ToggleGroup fx:id="difficultyGroup" />
@@ -25,7 +31,7 @@
                 <!-- 1. TELA DE NOME -->
                 <VBox fx:id="screenNameInput" alignment="CENTER" spacing="40">
                     <VBox alignment="CENTER" spacing="15">
-                        <Label text="ENTER INITIALS" styleClass="label-retro" style="-fx-font-size: 20px;"/>
+                        <Label fx:id="lblEnterInitials" text="ENTER INITIALS" styleClass="label-retro" style="-fx-font-size: 20px;"/>
                         
                         <StackPane>
                             <TextField fx:id="nameField" opacity="0" maxWidth="300" />
@@ -37,12 +43,13 @@
                             </HBox>
                         </StackPane>
                     </VBox>
-                    <Button text="CONFIRM" onAction="#confirmName" styleClass="btn-start" prefWidth="300" prefHeight="60"/>
+                    <!-- defaultButton="true" permite Enter se o foco estiver no VBox ou filhos -->
+                    <Button fx:id="btnConfirmName" text="CONFIRM" onAction="#confirmName" styleClass="btn-start" prefWidth="350" prefHeight="60" defaultButton="true"/>
                 </VBox>
 
                 <!-- 2. TELA DE DIFICULDADE -->
                 <VBox fx:id="screenDifficulty" alignment="CENTER" spacing="30" visible="false">
-                    <Label text="SELECT DIFFICULTY" styleClass="label-retro"/>
+                    <Label fx:id="lblSelectDiff" text="SELECT DIFFICULTY" styleClass="label-retro"/>
                     <VBox alignment="CENTER" spacing="15">
                         <ToggleButton fx:id="tglNormal" text="NORMAL" toggleGroup="$difficultyGroup" styleClass="diff-toggle, diff-normal" selected="true"/>
                         <ToggleButton fx:id="tglHard" text="HARD" toggleGroup="$difficultyGroup" styleClass="diff-toggle, diff-hard"/>
@@ -50,72 +57,81 @@
                         <ToggleButton fx:id="tglInfinity" text="∞ INFINITY" toggleGroup="$difficultyGroup" styleClass="diff-toggle, diff-infinity" visible="false" managed="false"/>
                     </VBox>
                     <HBox alignment="CENTER" spacing="20">
-                        <Button text="&lt; BACK" onAction="#backToNameInput" styleClass="btn-exit" prefWidth="150" prefHeight="50"/>
-                        <Button text="START GAME" onAction="#startGame" styleClass="btn-start" prefWidth="250" prefHeight="50"/>
+                        <!-- Larguras aumentadas para evitar corte de texto em PT -->
+                        <Button fx:id="btnBackDiff" text="&lt; BACK" onAction="#backToNameInput" styleClass="btn-exit" prefWidth="200" prefHeight="50"/>
+                        <Button fx:id="btnStartGame" text="START GAME" onAction="#startGame" styleClass="btn-start" prefWidth="300" prefHeight="50"/>
                     </HBox>
                 </VBox>
 
                 <!-- 3. TELA DE SETTINGS (OPTIONS) -->
                 <VBox fx:id="screenSettings" alignment="CENTER" spacing="40" visible="false">
-                    <Label text="SERVICE MENU" styleClass="label-retro" style="-fx-text-fill: #00eaff; -fx-font-size: 24px;"/>
+                    <Label fx:id="lblServiceMenu" text="SERVICE MENU" styleClass="label-retro" style="-fx-text-fill: #00eaff; -fx-font-size: 24px;"/>
                     
                     <VBox spacing="25" alignment="CENTER">
                         <HBox alignment="CENTER" spacing="20">
-                            <Label text="MUSIC VOLUME" styleClass="label-retro" minWidth="150"/>
+                            <Label fx:id="lblMusicVol" text="MUSIC VOLUME" styleClass="label-retro" minWidth="150"/>
                             <Slider fx:id="volumeMusicSlider" styleClass="retro-slider" prefWidth="250"/>
                         </HBox>
                         <HBox alignment="CENTER" spacing="20">
-                            <Label text="SFX VOLUME" styleClass="label-retro" minWidth="150"/>
+                            <Label fx:id="lblSfxVol" text="SFX VOLUME" styleClass="label-retro" minWidth="150"/>
                             <Slider fx:id="volumeSfxSlider" styleClass="retro-slider" prefWidth="250"/>
                         </HBox>
+                        
+                        <!-- Botão de Linguagem com largura aumentada -->
+                        <Button fx:id="btnLanguage" text="LANGUAGE: ENGLISH" onAction="#toggleLanguage" styleClass="btn-leaderboard" prefWidth="400" />
                     </VBox>
 
-                    <!-- Botão para Tela de Créditos -->
-                    <Button text="ABOUT TEAM" onAction="#goToCredits" styleClass="btn-leaderboard" prefWidth="250"/>
+                    <!-- Botão para Tela de Créditos com largura aumentada -->
+                    <Button fx:id="btnAboutTeam" text="ABOUT TEAM" onAction="#goToCredits" styleClass="btn-leaderboard" prefWidth="350"/>
 
-                    <Button text="&lt; BACK" onAction="#backToName" styleClass="btn-exit" prefWidth="200" prefHeight="50"/>
+                    <Button fx:id="btnBackSettings" text="&lt; BACK" onAction="#backToName" styleClass="btn-exit" prefWidth="250" prefHeight="50"/>
                 </VBox>
 
                 <!-- 4. TELA DE CRÉDITOS (ABOUT TEAM) -->
                 <VBox fx:id="screenCredits" alignment="CENTER" spacing="30" visible="false" style="-fx-padding: 20;">
-                    <Label text="DEVELOPMENT TEAM" styleClass="title-text" style="-fx-font-size: 30px;"/>
+                    <Label fx:id="lblDevTeam" text="DEVELOPMENT TEAM" styleClass="title-text" style="-fx-font-size: 30px;"/>
                     
                     <HBox alignment="CENTER" spacing="40">
                         <VBox alignment="CENTER" spacing="10">
                             <ImageView fx:id="imgDev1" fitWidth="100" fitHeight="100" />
                             <Label text="Henrique Luan F." styleClass="label-retro" style="-fx-text-fill: #4f69ffff;" wrapText="true" textAlignment="CENTER"/>
-                            <Label text="Computer Science" styleClass="label-retro" style="-fx-font-size: 12px;" wrapText="true" textAlignment="CENTER"/>
+                            <!-- Adicionado ID para tradução -->
+                            <Label fx:id="lblDevRole1" text="Computer Science" styleClass="label-retro" style="-fx-font-size: 12px;" wrapText="true" textAlignment="CENTER"/>
                         </VBox>
 
                         <VBox alignment="CENTER" spacing="10">
                             <ImageView fx:id="imgDev2" fitWidth="100" fitHeight="100" />
                             <Label text="Luan Vitor C.D." styleClass="label-retro" style="-fx-text-fill: #79fc8eff;" wrapText="true" textAlignment="CENTER"/>
-                            <Label text="Computer Science" styleClass="label-retro" style="-fx-font-size: 12px;" wrapText="true" textAlignment="CENTER"/>
+                            <!-- Adicionado ID para tradução -->
+                            <Label fx:id="lblDevRole2" text="Computer Science" styleClass="label-retro" style="-fx-font-size: 12px;" wrapText="true" textAlignment="CENTER"/>
                         </VBox>
 
                         <VBox alignment="CENTER" spacing="10">
                             <ImageView fx:id="imgDev3" fitWidth="100" fitHeight="100" />
                             <Label text="Lucas P. Sckenal" styleClass="label-retro" style="-fx-text-fill: #5819acff;" wrapText="true" textAlignment="CENTER"/>
-                            <Label text="Computer Science" styleClass="label-retro" style="-fx-font-size: 12px;" wrapText="true" textAlignment="CENTER"/>
+                            <!-- Adicionado ID para tradução -->
+                            <Label fx:id="lblDevRole3" text="Computer Science" styleClass="label-retro" style="-fx-font-size: 12px;" wrapText="true" textAlignment="CENTER"/>
                         </VBox>
                     </HBox>
 
-                    <Button text="&lt; BACK" onAction="#backToSettings" styleClass="btn-exit" prefWidth="200"/>
+                    <Button fx:id="btnBackCredits" text="&lt; BACK" onAction="#backToSettings" styleClass="btn-exit" prefWidth="250"/>
                 </VBox>
 
             </StackPane>
         </center>
 
         <bottom>
-            <VBox fx:id="bottomMenu" alignment="CENTER" spacing="15" style="-fx-padding: 20;">
+            <VBox fx:id="bottomMenu" alignment="CENTER" spacing="5" style="-fx-padding: 10;">
                 <HBox alignment="CENTER" spacing="20">
-                    <Button text="RANK" onAction="#showLeaderboard" styleClass="btn-leaderboard"/>
-                    <Button text="OPTIONS" onAction="#goToSettings" styleClass="btn-leaderboard"/> 
-                    <Button text="EXIT" onAction="#exitApp" styleClass="btn-exit"/>
+                    <Button fx:id="btnRank" text="RANK" onAction="#showLeaderboard" styleClass="btn-leaderboard"/>
+                    <Button fx:id="btnOptions" text="OPTIONS" onAction="#goToSettings" styleClass="btn-leaderboard"/> 
+                    <Button fx:id="btnExit" text="EXIT" onAction="#exitApp" styleClass="btn-exit"/>
                 </HBox>
 
-                <VBox alignment="CENTER" spacing="10">
-                    <Label text="v2.2 FINAL FINAL" style="-fx-text-fill: #666; -fx-font-size: 15px;" />
+                <!-- Footer com a dica de F11 (Cor ajustada e mais espaçamento) -->
+                <VBox alignment="CENTER" spacing="5" style="-fx-padding: 10px 0 0 0;">
+                     <Label text="v2.3 FINAL PATCH" style="-fx-text-fill: #666; -fx-font-size: 12px;" />
+                     <Label fx:id="lblF11Hint" text="PRESS F11 FOR FULLSCREEN" style="-fx-text-fill: #888; -fx-font-family: 'Courier New'; -fx-font-size: 12px; -fx-opacity: 1.0; -fx-padding: 10 0 0 0;" />
                 </VBox>
             </VBox>
         </bottom>

@@ -5,6 +5,7 @@ import javafx.animation.ParallelTransition;
 import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -16,10 +17,21 @@ import java.util.List;
 public class LeaderboardController {
 
     @FXML
-    private VBox scoreBox; 
+    private VBox scoreBox;
+    
+    @FXML
+    private Label lblTopPlayers;
+    
+    @FXML
+    private Button btnBack;
 
     @FXML
     public void initialize() {
+        // Aplica tradução baseado no estado atual
+        boolean isPT = GameState.getInstance().getLanguage() == GameState.Language.PT;
+        lblTopPlayers.setText(isPT ? "TOP 5 JOGADORES" : "TOP 5 PLAYERS");
+        btnBack.setText(isPT ? "< VOLTAR" : "< BACK");
+        
         loadLeaderboard();
     }
 
@@ -27,10 +39,8 @@ public class LeaderboardController {
      * Carrega os scores do LeaderboardManager e cria as linhas animadas.
      */
     private void loadLeaderboard() {
-        // Carrega dados e debuga quantidade
         List<LeaderboardManager.ScoreEntry> scores = LeaderboardManager.loadScores();
-        System.out.println("LeaderboardController recebeu " + scores.size() + " registros.");
-
+        
         scoreBox.getChildren().clear();
 
         int index = 0;
@@ -40,7 +50,6 @@ public class LeaderboardController {
             line.setAlignment(Pos.CENTER);
             line.getStyleClass().add("leaderboard-row");
             
-            // Definido o estado visual inicial para animação
             line.setOpacity(0); 
             line.setTranslateY(20);
 
@@ -62,33 +71,29 @@ public class LeaderboardController {
 
             scoreBox.getChildren().add(line);
             
-            // Animação Java de entrada
-            animateEntry(line, index * 0.15); // 0.15s de delay por item
+            animateEntry(line, index * 0.15);
 
             index++;
         }
 
         if (scores.isEmpty()) {
-            Label empty = new Label("SEM REGISTROS");
+            boolean isPT = GameState.getInstance().getLanguage() == GameState.Language.PT;
+            Label empty = new Label(isPT ? "SEM REGISTROS" : "NO RECORDS");
             empty.getStyleClass().add("label-retro");
             empty.setStyle("-fx-font-size: 20px; -fx-text-fill: #888;");
             scoreBox.getChildren().add(empty);
         }
     }
 
-    // Método auxiliar para criar a animação de entrada
     private void animateEntry(javafx.scene.Node node, double delaySeconds) {
-        // Animação de Opacidade (aparecer)
         FadeTransition fade = new FadeTransition(Duration.seconds(0.5), node);
         fade.setFromValue(0);
         fade.setToValue(1);
 
-        // Animação de Posição (subir um pouco)
         TranslateTransition translate = new TranslateTransition(Duration.seconds(0.5), node);
         translate.setFromY(20);
         translate.setToY(0);
 
-        // Roda as duas juntas
         ParallelTransition parallel = new ParallelTransition(fade, translate);
         parallel.setDelay(Duration.seconds(delaySeconds));
         parallel.play();
@@ -96,10 +101,7 @@ public class LeaderboardController {
 
     @FXML
     public void goBack() throws IOException {
-        
-        // Toca som de seleção para feedback ao usuário
         SoundManager.getInstance().playSound("select.wav");
-
         App.setRoot("primary");
     }
 }

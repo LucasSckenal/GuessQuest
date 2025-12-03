@@ -165,6 +165,16 @@
     -fx-effect: dropshadow(gaussian, rgba(0, 234, 255, 0.2), 5, 0, 0, 0);
 }
 
+.mute-button {
+    -fx-min-height: 35;
+    -fx-pref-height: 35;
+    -fx-max-height: 35;
+    -fx-min-width: 40;
+    -fx-pref-width: 40;
+    -fx-padding: 0;
+    -fx-font-size: 16px;
+}
+
 .game-button:hover {
     -fx-background-color: #00eaff;
     -fx-text-fill: #000000; /* Acende em Ciano com texto preto */
@@ -294,8 +304,8 @@
     -fx-font-family: 'Press Start 2P';
     -fx-font-size: 16px;
     -fx-cursor: hand;
-    -fx-pref-width: 220;
-    -fx-pref-height: 50;
+    -fx-pref-width: 220px;
+    -fx-pref-height: 50px;
     -fx-alignment: CENTER;
 }
 
@@ -369,4 +379,19 @@
 .rank-3 {
     -fx-text-fill: #CD7F32 !important;
     -fx-effect: dropshadow(gaussian, rgba(205, 127, 50, 0.3), 10, 0.5, 0, 0);
+}
+
+/* =================================================================================
+   8. BORDAS E MOLDURAS ESPECÍFICAS
+   ================================================================================= */
+
+/* Moldura da Imagem do Jogo */
+.game-image-frame {
+    -fx-max-width: 600px;
+    -fx-max-height: 350px;
+    -fx-border-color: #00eaff;
+    -fx-border-width: 3px;
+    -fx-effect: dropshadow(gaussian, #00eaff, 20, 0.5, 0, 0); /* Glow */
+    -fx-padding: 0; 
+    -fx-background-color: black; /* Fundo preto caso a imagem não preencha tudo */
 }

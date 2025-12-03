@@ -17,7 +17,8 @@
         <top>
             <VBox alignment="CENTER" spacing="20">
                 <Label text="RANKING" styleClass="title-text" style="-fx-font-size: 48px;" />
-                <Label text="TOP 5 PLAYERS" styleClass="label-retro, title-text" style="-fx-font-size: 24px; -fx-text-fill: #ffcc00;" />
+                <!-- Adicionado ID para tradução -->
+                <Label fx:id="lblTopPlayers" text="TOP 5 PLAYERS" styleClass="label-retro, title-text" style="-fx-font-size: 24px; -fx-text-fill: #ffcc00;" />
             </VBox>
         </top>
 
@@ -38,7 +39,8 @@
                     <Insets top="10" right="10" bottom="10" left="10" />
                 </padding>
                 
-                <Button text="&lt; BACK"
+                <!-- Adicionado ID para tradução -->
+                <Button fx:id="btnBack" text="&lt; BACK"
                         onAction="#goBack"
                         prefWidth="220"
                         styleClass="btn-exit"

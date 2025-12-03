@@ -1,8 +1,7 @@
 package br.edu.unijui.piu.guessquest;
 
 /**
- * Singleton para gerenciar o estado global do jogo (Vidas, Pontos,
- * Configurações).
+ * Singleton para gerenciar o estado global do jogo.
  */
 public class GameState {
 
@@ -12,8 +11,6 @@ public class GameState {
         NORMAL(5, 1.0, "80,100"),
         HARD(3, 1.5, "60,100"),
         SOULS(1, 2.0, "1,100"),
-
-        // --- NOVO MODO SECRETO ---
         INFINITY(99, 10.0, "1,100");
 
         final int initialLives;
@@ -27,8 +24,14 @@ public class GameState {
         }
     }
 
+    // Enum simples para controle de idioma
+    public enum Language {
+        EN, PT
+    }
+
     private String playerName;
     private Difficulty difficulty;
+    private Language currentLanguage; // Variável de idioma
     private int currentLives;
     private int currentScore;
     private int currentPhase;
@@ -40,6 +43,7 @@ public class GameState {
 
     private GameState() {
         this.difficulty = Difficulty.NORMAL;
+        this.currentLanguage = Language.PT;
         this.currentScore = 0;
         this.currentPhase = 1;
         resetHints();
@@ -65,69 +69,39 @@ public class GameState {
         this.hintAvocadoUsed = false;
     }
 
-    // Getters e Setters das Dicas
-    public boolean isHintCallUsed() {
-        return hintCallUsed;
+    // --- IDIOMA ---
+    public Language getLanguage() {
+        return currentLanguage;
     }
 
-    public void setHintCallUsed(boolean used) {
-        this.hintCallUsed = used;
+    public void setLanguage(Language lang) {
+        this.currentLanguage = lang;
     }
 
-    public boolean isHintStudentsUsed() {
-        return hintStudentsUsed;
+    public void toggleLanguage() {
+        if (this.currentLanguage == Language.EN) {
+            this.currentLanguage = Language.PT;
+        } else {
+            this.currentLanguage = Language.EN;
+        }
     }
 
-    public void setHintStudentsUsed(boolean used) {
-        this.hintStudentsUsed = used;
-    }
+    // Getters e Setters de Dicas e Estado
+    public boolean isHintCallUsed() { return hintCallUsed; }
+    public void setHintCallUsed(boolean used) { this.hintCallUsed = used; }
+    public boolean isHintStudentsUsed() { return hintStudentsUsed; }
+    public void setHintStudentsUsed(boolean used) { this.hintStudentsUsed = used; }
+    public boolean isHintAvocadoUsed() { return hintAvocadoUsed; }
+    public void setHintAvocadoUsed(boolean used) { this.hintAvocadoUsed = used; }
 
-    public boolean isHintAvocadoUsed() {
-        return hintAvocadoUsed;
-    }
-
-    public void setHintAvocadoUsed(boolean used) {
-        this.hintAvocadoUsed = used;
-    }
-
-    // Getters e Setters existentes
-    public String getPlayerName() {
-        return playerName;
-    }
-
-    public void setPlayerName(String playerName) {
-        this.playerName = playerName;
-    }
-
-    public Difficulty getDifficulty() {
-        return difficulty;
-    }
-
-    public void setDifficulty(Difficulty difficulty) {
-        this.difficulty = difficulty;
-    }
-
-    public int getCurrentLives() {
-        return currentLives;
-    }
-
-    public void decreaseLife() {
-        this.currentLives--;
-    }
-
-    public int getCurrentScore() {
-        return currentScore;
-    }
-
-    public void addScore(int points) {
-        this.currentScore += (points * difficulty.scoreMultiplier);
-    }
-
-    public int getCurrentPhase() {
-        return currentPhase;
-    }
-
-    public void nextPhase() {
-        this.currentPhase++;
-    }
+    public String getPlayerName() { return playerName; }
+    public void setPlayerName(String playerName) { this.playerName = playerName; }
+    public Difficulty getDifficulty() { return difficulty; }
+    public void setDifficulty(Difficulty difficulty) { this.difficulty = difficulty; }
+    public int getCurrentLives() { return currentLives; }
+    public void decreaseLife() { this.currentLives--; }
+    public int getCurrentScore() { return currentScore; }
+    public void addScore(int points) { this.currentScore += (points * difficulty.scoreMultiplier); }
+    public int getCurrentPhase() { return currentPhase; }
+    public void nextPhase() { this.currentPhase++; }
 }

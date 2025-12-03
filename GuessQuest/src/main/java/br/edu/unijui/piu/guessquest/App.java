@@ -10,22 +10,31 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
+/**
+ * Classe principal da aplicação JavaFX.
+ * Responsável por iniciar o Stage principal, carregar a cena inicial,
+ * configurar estilos globais e gerenciar eventos de janela (como Fullscreen e CSS responsivo).
+ */
 public class App extends Application {
 
     private static Scene scene;
     private static Stage primaryStage;
 
+    /**
+     * Ponto de entrada da aplicação JavaFX.
+     */
     @Override
     public void start(Stage stage) throws IOException {
         primaryStage = stage;
-        // Define o tamanho inicial da janela
+        
+        // Define o tamanho inicial da janela e carrega a view principal
         scene = new Scene(loadFXML("primary"), 1024, 768); 
         scene.getStylesheets().add(getClass().getResource("styles.css").toExternalForm());
         
-        // Ativa o CSS responsivo
+        // Inicializa o sistema de CSS responsivo para overlay
         setupResponsiveCSS(scene);
 
-        // Lógica de Fullscreen com F11
+        // Configura atalho global F11 para alternar tela cheia
         scene.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
             if (KeyCode.F11 == event.getCode()) {
                 stage.setFullScreen(!stage.isFullScreen());
@@ -37,14 +46,22 @@ public class App extends Application {
         stage.setResizable(true);
         stage.show();
 
-        // Inicia a música de fundo
+        // Inicia a reprodução da música de fundo (BGM)
         SoundManager.getInstance().playMusic("bgm.mp3");
     }
 
+    /**
+     * Substitui o conteúdo raiz da cena atual por um novo FXML.
+     * Utilizado para navegação entre telas maiores (ex: Menu -> Jogo).
+     * * @param fxml Nome do arquivo FXML (sem extensão) a ser carregado.
+     */
     public static void setRoot(String fxml) throws IOException {
         scene.setRoot(loadFXML(fxml));
     }
 
+    /**
+     * Carrega a hierarquia de objetos de um arquivo FXML.
+     */
     private static Parent loadFXML(String fxml) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource(fxml + ".fxml"));
         return fxmlLoader.load();
@@ -55,30 +72,36 @@ public class App extends Application {
     }
 
     // =================================================================================
-    // MÉTODOS PARA CSS RESPONSIVO (DETECÇÃO DE TELA GRANDE)
+    // GERENCIAMENTO DE CSS RESPONSIVO (DETECÇÃO DE MODO DESKTOP/ARCADE)
     // =================================================================================
 
-    // Configura o CSS responsivo para a cena fornecida
+    /**
+     * Configura listeners para detectar mudanças no tamanho da janela e adaptar o CSS.
+     * Adiciona a classe 'desktop-mode' quando a tela é grande o suficiente para mostrar o gabinete arcade.
+     */
     private void setupResponsiveCSS(Scene scene) {
 
-        // Adiciona listeners que ouvem quando a janela muda de tamanho (Largura ou Altura)
+        // Adiciona listeners para redimensionamento (Largura e Altura)
         scene.widthProperty().addListener((o, oldV, newV) -> applyResponsiveClass(scene));
         scene.heightProperty().addListener((o, oldV, newV) -> applyResponsiveClass(scene));
 
-        // Adiciona listener para quando a tela muda (Ex: foi de Primary para Secondary)
+        // Adiciona listener para quando a raiz da cena mudar (navegação entre telas)
+        // para garantir que a classe seja reaplicada na nova view
         scene.rootProperty().addListener((o, oldRoot, newRoot) -> applyResponsiveClass(scene));
         
-        // Aplica a classe responsiva na inicialização
+        // Aplicação inicial
         applyResponsiveClass(scene);
     }
 
+    /**
+     * Aplica ou remove a classe CSS 'desktop-mode' baseada nas dimensões atuais.
+     */
     private void applyResponsiveClass(Scene scene) {
         if (scene.getRoot() == null) return;
 
-        // Definido como "tela grande" se largura >=1800 e altura >=900 (o mínimo necessário para não ter clipping com o overlay)
+        // Critério: Largura >= 1800 e Altura >= 900 para evitar clipping do overlay gráfico
         boolean isBigScreen = scene.getWidth() >= 1800 && scene.getHeight() >= 900;
 
-        // Lógica para adicionar/remover a classe 'desktop-mode' conforme o tamanho da tela
         if (isBigScreen) {
             if (!scene.getRoot().getStyleClass().contains("desktop-mode")) {
                 scene.getRoot().getStyleClass().add("desktop-mode");
