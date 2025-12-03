@@ -7,6 +7,7 @@ import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
@@ -18,29 +19,25 @@ public class LeaderboardController {
 
     @FXML
     private VBox scoreBox;
-    
+
     @FXML
     private Label lblTopPlayers;
-    
+
     @FXML
     private Button btnBack;
 
     @FXML
     public void initialize() {
-        // Aplica tradução baseado no estado atual
         boolean isPT = GameState.getInstance().getLanguage() == GameState.Language.PT;
         lblTopPlayers.setText(isPT ? "TOP 5 JOGADORES" : "TOP 5 PLAYERS");
         btnBack.setText(isPT ? "< VOLTAR" : "< BACK");
-        
+
         loadLeaderboard();
     }
 
-    /**
-     * Carrega os scores do LeaderboardManager e cria as linhas animadas.
-     */
     private void loadLeaderboard() {
         List<LeaderboardManager.ScoreEntry> scores = LeaderboardManager.loadScores();
-        
+
         scoreBox.getChildren().clear();
 
         int index = 0;
@@ -49,11 +46,12 @@ public class LeaderboardController {
             HBox line = new HBox(40);
             line.setAlignment(Pos.CENTER);
             line.getStyleClass().add("leaderboard-row");
-            
-            line.setOpacity(0); 
+
+            line.setOpacity(0);
             line.setTranslateY(20);
 
-            String rankClass = (index == 0) ? "rank-1" : (index == 1) ? "rank-2" : (index == 2) ? "rank-3" : "rank-others";
+            String rankClass = (index == 0) ? "rank-1"
+                    : (index == 1) ? "rank-2" : (index == 2) ? "rank-3" : "rank-others";
 
             Label name = new Label(entry.name);
             name.getStyleClass().addAll("rank-name", rankClass);
@@ -62,18 +60,36 @@ public class LeaderboardController {
             value.getStyleClass().addAll("rank-score", rankClass);
 
             if (index == 0) {
+                // --- AJUSTE DE ALINHAMENTO VISUAL ---
+
                 Label crown = new Label("👑");
-                crown.setStyle("-fx-font-size: 36px; -fx-text-fill: gold;");
-                line.getChildren().addAll(crown, name, value);
+               
+                crown.setStyle("-fx-font-size: 28px; -fx-text-fill: gold; -fx-padding: -10 5 0 0;"); 
+
+                GridPane nameContainer = new GridPane();
+                nameContainer.setAlignment(Pos.CENTER);                
+
+                nameContainer.add(crown, 0, 0);                
+                nameContainer.add(name, 1, 0);
+
+                // Força o alinhamento vertical das células para o CENTRO
+                GridPane.setValignment(crown, javafx.geometry.VPos.CENTER); 
+                GridPane.setValignment(name, javafx.geometry.VPos.CENTER); 
+
+                line.getChildren().addAll(nameContainer, value);                
+
+                // -----------------------------------------------------------
             } else {
                 line.getChildren().addAll(name, value);
             }
 
             scoreBox.getChildren().add(line);
-            
+
             animateEntry(line, index * 0.15);
 
             index++;
+            if (index >= 5)
+                break;
         }
 
         if (scores.isEmpty()) {
