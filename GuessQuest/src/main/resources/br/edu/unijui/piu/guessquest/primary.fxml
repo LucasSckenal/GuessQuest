@@ -5,7 +5,10 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.image.ImageView?>
 
-<!-- Adicionado onKeyPressed para lidar com o Enter Globalmente -->
+<!-- 
+    ROOT CONTAINER
+    Define o controlador e o listener global de teclado (onKeyPressed) para atalhos como Enter.
+-->
 <StackPane xmlns="http://javafx.com/javafx/8.0.171" 
            xmlns:fx="http://javafx.com/fxml/1" 
            fx:controller="br.edu.unijui.piu.guessquest.PrimaryController" 
@@ -17,8 +20,12 @@
         <ToggleGroup fx:id="difficultyGroup" />
     </fx:define>
 
+    <!-- LAYOUT PRINCIPAL (COM MARGENS DO FLIPERAMA) -->
     <BorderPane styleClass="arcade-container" maxWidth="900" maxHeight="800" pickOnBounds="false">
         
+        <!-- =================================================================================
+             TOPO: TÍTULO E FEEDBACK VISUAL
+             ================================================================================= -->
         <top>
             <VBox alignment="CENTER" spacing="5" style="-fx-padding: 40 0 0 0;">
                 <Label text="GUESS QUEST" styleClass="title-text"/>
@@ -26,13 +33,19 @@
             </VBox>
         </top>
 
+        <!-- =================================================================================
+             CENTRO: TELAS NAVEGÁVEIS (STACKPANE)
+             As telas são empilhadas aqui e alternamos a visibilidade entre elas.
+             ================================================================================= -->
         <center>
             <StackPane>
-                <!-- 1. TELA DE NOME -->
+                
+                <!-- 1. TELA DE ENTRADA DE NOME (START) -->
                 <VBox fx:id="screenNameInput" alignment="CENTER" spacing="40">
                     <VBox alignment="CENTER" spacing="15">
                         <Label fx:id="lblEnterInitials" text="ENTER INITIALS" styleClass="label-retro" style="-fx-font-size: 20px;"/>
                         
+                        <!-- Input Oculto + Representação Visual (Slots) -->
                         <StackPane>
                             <TextField fx:id="nameField" opacity="0" maxWidth="300" />
                             <HBox alignment="CENTER" spacing="15" mouseTransparent="true">
@@ -43,27 +56,30 @@
                             </HBox>
                         </StackPane>
                     </VBox>
-                    <!-- defaultButton="true" permite Enter se o foco estiver no VBox ou filhos -->
+                    
+                    <!-- Botão Padrão (acionado por Enter se focado) -->
                     <Button fx:id="btnConfirmName" text="CONFIRM" onAction="#confirmName" styleClass="btn-start" prefWidth="350" prefHeight="60" defaultButton="true"/>
                 </VBox>
 
-                <!-- 2. TELA DE DIFICULDADE -->
+                <!-- 2. TELA DE SELEÇÃO DE DIFICULDADE -->
                 <VBox fx:id="screenDifficulty" alignment="CENTER" spacing="30" visible="false">
                     <Label fx:id="lblSelectDiff" text="SELECT DIFFICULTY" styleClass="label-retro"/>
+                    
                     <VBox alignment="CENTER" spacing="15">
                         <ToggleButton fx:id="tglNormal" text="NORMAL" toggleGroup="$difficultyGroup" styleClass="diff-toggle, diff-normal" selected="true"/>
                         <ToggleButton fx:id="tglHard" text="HARD" toggleGroup="$difficultyGroup" styleClass="diff-toggle, diff-hard"/>
                         <ToggleButton fx:id="tglSouls" text="SOULS" toggleGroup="$difficultyGroup" styleClass="diff-toggle, diff-souls"/>
+                        <!-- Dificuldade Secreta -->
                         <ToggleButton fx:id="tglInfinity" text="∞ INFINITY" toggleGroup="$difficultyGroup" styleClass="diff-toggle, diff-infinity" visible="false" managed="false"/>
                     </VBox>
+                    
                     <HBox alignment="CENTER" spacing="20">
-                        <!-- Larguras aumentadas para evitar corte de texto em PT -->
-                        <Button fx:id="btnBackDiff" text="&lt; BACK" onAction="#backToNameInput" styleClass="btn-exit" prefWidth="200" prefHeight="50"/>
+                        <Button fx:id="btnBackDiff" text="&lt; BACK" onAction="#backToNameInput" styleClass="btn-exit" prefWidth="250" prefHeight="50"/>
                         <Button fx:id="btnStartGame" text="START GAME" onAction="#startGame" styleClass="btn-start" prefWidth="300" prefHeight="50"/>
                     </HBox>
                 </VBox>
 
-                <!-- 3. TELA DE SETTINGS (OPTIONS) -->
+                <!-- 3. TELA DE CONFIGURAÇÕES (SERVICE MENU) -->
                 <VBox fx:id="screenSettings" alignment="CENTER" spacing="40" visible="false">
                     <Label fx:id="lblServiceMenu" text="SERVICE MENU" styleClass="label-retro" style="-fx-text-fill: #00eaff; -fx-font-size: 24px;"/>
                     
@@ -77,13 +93,10 @@
                             <Slider fx:id="volumeSfxSlider" styleClass="retro-slider" prefWidth="250"/>
                         </HBox>
                         
-                        <!-- Botão de Linguagem com largura aumentada -->
-                        <Button fx:id="btnLanguage" text="LANGUAGE: ENGLISH" onAction="#toggleLanguage" styleClass="btn-leaderboard" prefWidth="400" />
+                        <Button fx:id="btnLanguage" text="LANGUAGE: ENGLISH" onAction="#toggleLanguage" styleClass="btn-leaderboard" prefWidth="500" />
                     </VBox>
 
-                    <!-- Botão para Tela de Créditos com largura aumentada -->
-                    <Button fx:id="btnAboutTeam" text="ABOUT TEAM" onAction="#goToCredits" styleClass="btn-leaderboard" prefWidth="350"/>
-
+                    <Button fx:id="btnAboutTeam" text="ABOUT TEAM" onAction="#goToCredits" styleClass="btn-leaderboard" prefWidth="400"/>
                     <Button fx:id="btnBackSettings" text="&lt; BACK" onAction="#backToName" styleClass="btn-exit" prefWidth="250" prefHeight="50"/>
                 </VBox>
 
@@ -95,21 +108,18 @@
                         <VBox alignment="CENTER" spacing="10">
                             <ImageView fx:id="imgDev1" fitWidth="100" fitHeight="100" />
                             <Label text="Henrique Luan F." styleClass="label-retro" style="-fx-text-fill: #4f69ffff;" wrapText="true" textAlignment="CENTER"/>
-                            <!-- Adicionado ID para tradução -->
                             <Label fx:id="lblDevRole1" text="Computer Science" styleClass="label-retro" style="-fx-font-size: 12px;" wrapText="true" textAlignment="CENTER"/>
                         </VBox>
 
                         <VBox alignment="CENTER" spacing="10">
                             <ImageView fx:id="imgDev2" fitWidth="100" fitHeight="100" />
                             <Label text="Luan Vitor C.D." styleClass="label-retro" style="-fx-text-fill: #79fc8eff;" wrapText="true" textAlignment="CENTER"/>
-                            <!-- Adicionado ID para tradução -->
                             <Label fx:id="lblDevRole2" text="Computer Science" styleClass="label-retro" style="-fx-font-size: 12px;" wrapText="true" textAlignment="CENTER"/>
                         </VBox>
 
                         <VBox alignment="CENTER" spacing="10">
                             <ImageView fx:id="imgDev3" fitWidth="100" fitHeight="100" />
                             <Label text="Lucas P. Sckenal" styleClass="label-retro" style="-fx-text-fill: #5819acff;" wrapText="true" textAlignment="CENTER"/>
-                            <!-- Adicionado ID para tradução -->
                             <Label fx:id="lblDevRole3" text="Computer Science" styleClass="label-retro" style="-fx-font-size: 12px;" wrapText="true" textAlignment="CENTER"/>
                         </VBox>
                     </HBox>
@@ -120,6 +130,9 @@
             </StackPane>
         </center>
 
+        <!-- =================================================================================
+             RODAPÉ: MENU DE NAVEGAÇÃO E INFO
+             ================================================================================= -->
         <bottom>
             <VBox fx:id="bottomMenu" alignment="CENTER" spacing="5" style="-fx-padding: 10;">
                 <HBox alignment="CENTER" spacing="20">
@@ -128,7 +141,7 @@
                     <Button fx:id="btnExit" text="EXIT" onAction="#exitApp" styleClass="btn-exit"/>
                 </HBox>
 
-                <!-- Footer com a dica de F11 (Cor ajustada e mais espaçamento) -->
+                <!-- Dica de Fullscreen e Versão -->
                 <VBox alignment="CENTER" spacing="5" style="-fx-padding: 10px 0 0 0;">
                      <Label text="v2.3 FINAL PATCH" style="-fx-text-fill: #666; -fx-font-size: 12px;" />
                      <Label fx:id="lblF11Hint" text="PRESS F11 FOR FULLSCREEN" style="-fx-text-fill: #888; -fx-font-family: 'Courier New'; -fx-font-size: 12px; -fx-opacity: 1.0; -fx-padding: 10 0 0 0;" />

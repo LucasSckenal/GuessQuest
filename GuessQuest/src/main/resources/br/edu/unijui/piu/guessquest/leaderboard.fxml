@@ -5,23 +5,34 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.image.ImageView?>
 
+<!-- 
+    TELA DE RANKING (LEADERBOARD)
+    Exibe as 5 melhores pontuações salvas localmente.
+-->
 <StackPane xmlns="http://javafx.com/javafx/8.0.171"
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="br.edu.unijui.piu.guessquest.LeaderboardController"
            styleClass="root arcade-bezel">
 
+    <!-- Efeito Visual de Scanlines -->
     <VBox styleClass="crt-overlay" />
 
     <BorderPane styleClass="arcade-container" maxWidth="900" maxHeight="800">
 
+        <!-- =================================================================================
+             TOPO: TÍTULO DA PÁGINA
+             ================================================================================= -->
         <top>
             <VBox alignment="CENTER" spacing="20">
                 <Label text="RANKING" styleClass="title-text" style="-fx-font-size: 48px;" />
-                <!-- Adicionado ID para tradução -->
                 <Label fx:id="lblTopPlayers" text="TOP 5 PLAYERS" styleClass="label-retro, title-text" style="-fx-font-size: 24px; -fx-text-fill: #ffcc00;" />
             </VBox>
         </top>
 
+        <!-- =================================================================================
+             CENTRO: LISTA DE PONTUAÇÕES
+             Container VBox onde as linhas de pontuação são inseridas dinamicamente pelo Controller.
+             ================================================================================= -->
         <center>
             <VBox fx:id="scoreBox"
                   spacing="18"
@@ -33,13 +44,15 @@
             </VBox>
         </center>
 
+        <!-- =================================================================================
+             RODAPÉ: NAVEGAÇÃO
+             ================================================================================= -->
         <bottom>
             <VBox alignment="CENTER" spacing="15">
                 <padding>
                     <Insets top="10" right="10" bottom="10" left="10" />
                 </padding>
                 
-                <!-- Adicionado ID para tradução -->
                 <Button fx:id="btnBack" text="&lt; BACK"
                         onAction="#goBack"
                         prefWidth="220"
