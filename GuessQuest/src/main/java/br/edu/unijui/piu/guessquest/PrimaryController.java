@@ -83,7 +83,7 @@ public class PrimaryController {
         setupCheatCode();
 
         // Carrega avatares do time (Exemplo usando GitHub - troque pelos users reais)
-        loadDevAvatar(imgDev1, "HenriqueLuanFritz");
+        loadDevAvatar(imgDev1, "Henrique-Fritz");
         loadDevAvatar(imgDev2, "LuanVitorCD");
         loadDevAvatar(imgDev3, "LucasSckenal");
 

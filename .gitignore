@@ -1,1 +1,38 @@
-/GuessQuest/target/
+# --- Build do Maven ---
+target/
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# --- Logs e Arquivos Temporários do Java ---
+*.class
+*.log
+hs_err_pid*
+jshell.history
+
+# --- Saída do jpackage (Seu executável gerado) ---
+saida_app/
+
+# --- IDE: VS Code ---
+.vscode/
+*.code-workspace
+
+# --- IDE: IntelliJ IDEA (caso use no futuro) ---
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# --- IDE: Eclipse (caso use no futuro) ---
+.classpath
+.project
+.settings/
+bin/
+
+# --- Arquivos de Sistema Operacional ---
+.DS_Store
+Thumbs.db

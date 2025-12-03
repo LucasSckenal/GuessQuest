@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estrutura de Camadas JavaFX - Guess Quest</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #2c3e50; text-align: center; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        h2 { color: #2980b9; margin-top: 30px; border-left: 5px solid #3498db; padding-left: 10px; }
+        h3 { color: #16a085; margin-top: 20px; }
+        
+        .layer-box {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #fcfcfc;
+        }
+        .code-tag {
+            background-color: #eee;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #c7254e;
+            font-weight: bold;
+        }
+        .highlight {
+            background-color: #e8f6f3;
+            border-left: 4px solid #1abc9c;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .tree {
+            font-family: monospace;
+            white-space: pre;
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Arquitetura de Layout JavaFX (Camadas)</h1>
+    <p>Este documento detalha a estrutura hierárquica dos nós (Nodes) JavaFX utilizados na construção da interface do <strong>Guess Quest</strong>. A aplicação utiliza um design responsivo baseado em contêineres aninhados.</p>
+
+    <h2>1. Estrutura Global (Root)</h2>
+    <div class="layer-box">
+        <p>A raiz de todas as telas é sempre um <span class="code-tag">StackPane</span>. Este layout foi escolhido por permitir o empilhamento de elementos (camadas) uns sobre os outros, essencial para efeitos de fundo e sobreposições.</p>
+        <div class="tree">
+StackPane (Root)
+├── VBox (CRT Overlay - Efeito Scanline)
+└── BorderPane (Arcade Container - Onde o jogo acontece)
+    ├── Top (Cabeçalho)
+    ├── Center (Área Principal Dinâmica)
+    └── Bottom (Menu de Rodapé)
+        </div>
+    </div>
+
+    <h2>2. Tela Principal (Primary.fxml)</h2>
+    <p>Utiliza uma estratégia de <strong>Visibilidade Dinâmica</strong>. Todas as "subtelas" (Menu, Dificuldade, Opções) existem simultaneamente dentro do <span class="code-tag">StackPane</span> central, mas apenas uma fica visível (<span class="code-tag">setVisible(true)</span>) por vez.</p>
+    
+    <div class="layer-box">
+        <h3>Camadas do Center (StackPane):</h3>
+        <ul>
+            <li>
+                <strong>Camada 1: Menu de Nome (<span class="code-tag">VBox fx:id="screenNameInput"</span>)</strong><br>
+                Contém o <span class="code-tag">TextField</span> oculto e os Labels estilizados para os slots de letras.
+            </li>
+            <li>
+                <strong>Camada 2: Seleção de Dificuldade (<span class="code-tag">VBox fx:id="screenDifficulty"</span>)</strong><br>
+                Usa <span class="code-tag">ToggleButton</span> dentro de um <span class="code-tag">ToggleGroup</span> para exclusão mútua.
+            </li>
+            <li>
+                <strong>Camada 3: Configurações (<span class="code-tag">VBox fx:id="screenSettings"</span>)</strong><br>
+                Usa <span class="code-tag">HBox</span> para alinhar Label (esquerda) e Slider (direita) na mesma linha.
+            </li>
+            <li>
+                <strong>Camada 4: Créditos (<span class="code-tag">VBox fx:id="screenCredits"</span>)</strong><br>
+                Fundo semitransparente para destacar sobre o jogo.
+            </li>
+        </ul>
+    </div>
+
+    <h2>3. Tela de Jogo (Secondary.fxml)</h2>
+    <p>Estrutura focada na organização de informações e feedback visual.</p>
+    
+    <div class="layer-box">
+        <ul>
+            <li><strong>Top (HBox):</strong> Alinha Vidas (Esq), Fase (Centro) e Pontos (Dir) usando regiões espaçadoras (<span class="code-tag">Region HBox.hgrow="ALWAYS"</span>).</li>
+            <li><strong>Center (VBox):</strong>
+                <ul>
+                    <li><span class="code-tag">StackPane</span> da Imagem: Contém a <span class="code-tag">ImageView</span> do jogo e uma camada de "Loading" por cima.</li>
+                    <li><span class="code-tag">GridPane</span> de Respostas: Organiza os 4 botões em uma matriz 2x2. Perfeito para manter alinhamento.</li>
+                    <li><span class="code-tag">HBox</span> de Dicas: Botões de poderes alinhados horizontalmente.</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <h2>4. Tela de Ranking (Leaderboard.fxml)</h2>
+    <p>Simples e direto, focado na lista vertical.</p>
+    <div class="layer-box">
+        <ul>
+            <li><strong>Center (<span class="code-tag">VBox fx:id="scoreBox"</span>):</strong> Um contêiner vertical vazio que é preenchido dinamicamente pelo Controller. Cada linha do ranking é um novo <span class="code-tag">HBox</span> criado via código Java.</li>
+        </ul>
+    </div>
+
+    <div class="highlight">
+        <strong>Nota Técnica:</strong> O uso extensivo de <span class="code-tag">VBox</span> (Vertical) e <span class="code-tag">HBox</span> (Horizontal) simplifica o layout responsivo, enquanto o <span class="code-tag">StackPane</span> permite a criação de interfaces ricas com sobreposições sem a complexidade de gerenciar janelas múltiplas.
+    </div>
+</div>
+
+</body>
+</html>
