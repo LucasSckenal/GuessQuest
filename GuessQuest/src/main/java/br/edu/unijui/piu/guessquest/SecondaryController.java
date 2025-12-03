@@ -81,11 +81,12 @@ public class SecondaryController {
     }
 
     private void updateUIHeader() {
-        lblPlayer.setText("JOGADOR: " + state.getPlayerName());
-        lblPhase.setText(String.format("FASE: %02d-15", state.getCurrentPhase()));
-        lblScore.setText(String.format("PONTOS: %06d", state.getCurrentScore()));
+        // TRADUZIDO: UI Header
+        lblPlayer.setText("PLAYER: " + state.getPlayerName());
+        lblPhase.setText(String.format("PHASE: %02d-15", state.getCurrentPhase()));
+        lblScore.setText(String.format("SCORE: %06d", state.getCurrentScore()));
 
-        StringBuilder livesStr = new StringBuilder("VIDAS: ");
+        StringBuilder livesStr = new StringBuilder("LIVES: ");
         for (int i = 0; i < state.getCurrentLives(); i++) {
             livesStr.append("♥ ");
         }
@@ -121,8 +122,9 @@ public class SecondaryController {
 
             // Feedback visual e sonoro
             SoundManager.getInstance().playSound("hint.wav");
-            lblFeedback.setText("OTACON: 'Hackeei o sistema! A opção " + getOptionLetter(toRemove) + " é falsa!'");
-            lblFeedback.setStyle("-fx-text-fill: #3498db;"); 
+            // TRADUZIDO: Otacon Dialogue
+            lblFeedback.setText("OTACON: 'System hacked! Option " + getOptionLetter(toRemove) + " is false!'");
+            lblFeedback.setStyle("-fx-text-fill: #3498db;");
         }
     }
 
@@ -161,8 +163,9 @@ public class SecondaryController {
 
         // Feedback visual e sonoro
         SoundManager.getInstance().playSound("hint.wav");
-        lblFeedback.setText("UNIVERSITÁRIOS: 'Acreditamos que seja a maior porcentagem...'");
-        lblFeedback.setStyle("-fx-text-fill: #ea80fc;"); 
+        // TRADUZIDO: Students Dialogue
+        lblFeedback.setText("STUDENTS: 'We believe it's the highest percentage...'");
+        lblFeedback.setStyle("-fx-text-fill: #ea80fc;");
     }
 
     @FXML
@@ -187,8 +190,9 @@ public class SecondaryController {
 
         // Feedback visual e sonoro
         SoundManager.getInstance().playSound("abacate.wav");
-        lblFeedback.setText("ABACATE SAGRADO: 'A polpa divina eliminou as impurezas!'");
-        lblFeedback.setStyle("-fx-text-fill: #00ff00; -fx-font-weight: bold;"); 
+        // TRADUZIDO: Avocado Dialogue
+        lblFeedback.setText("HOLY AVOCADO: 'The divine pulp has eliminated the impurities!'");
+        lblFeedback.setStyle("-fx-text-fill: #00ff00; -fx-font-weight: bold;");
     }
 
     // Atualiza o estilo do botão de dica para refletir se foi usado ou não
@@ -212,10 +216,14 @@ public class SecondaryController {
     }
 
     private Button getCorrectButton() {
-        if (isCorrect(btnA)) return btnA;
-        if (isCorrect(btnB)) return btnB;
-        if (isCorrect(btnC)) return btnC;
-        if (isCorrect(btnD)) return btnD;
+        if (isCorrect(btnA))
+            return btnA;
+        if (isCorrect(btnB))
+            return btnB;
+        if (isCorrect(btnC))
+            return btnC;
+        if (isCorrect(btnD))
+            return btnD;
         return null;
     }
 
@@ -234,8 +242,9 @@ public class SecondaryController {
     private String cleanButtonText(String text) {
         // Remove "A) ", "B) " iniciais
         String temp = text.length() > 3 ? text.substring(3) : text;
-        
-        // Remove APENAS a porcentagem da dica (ex: " (50%)") no final da string usando Regex.
+
+        // Remove APENAS a porcentagem da dica (ex: " (50%)") no final da string usando
+        // Regex.
         return temp.replaceAll("\\s*\\(\\d+%\\)$", "").trim();
     }
 
@@ -267,7 +276,8 @@ public class SecondaryController {
         }
 
         interactionLocked = true;
-        lblFeedback.setText("CARREGANDO DADOS...");
+        // TRADUZIDO: Loading
+        lblFeedback.setText("LOADING DATA...");
         loadingLayer.setVisible(true);
 
         new Thread(() -> {
@@ -278,7 +288,8 @@ public class SecondaryController {
                 Platform.runLater(() -> setupLevelUI(finalData));
             } catch (Exception e) {
 
-                // Caso for encontrado um problema na hora do fetch, usa dados de fallback (Pacman state) novamente para evitar com 100% dos casos softlock
+                // Caso for encontrado um problema na hora do fetch, usa dados de fallback
+                // (Pacman state) novamente para evitar com 100% dos casos softlock
                 e.printStackTrace();
                 Platform.runLater(() -> setupLevelUI(getEmergencyFallbackData()));
             }
@@ -338,7 +349,8 @@ public class SecondaryController {
 
         resetButtonStyles();
 
-        // Atualiza os estados dos botões de ajuda (hints), caso já tenham sido usados, reflete na UI
+        // Atualiza os estados dos botões de ajuda (hints), caso já tenham sido usados,
+        // reflete na UI
         updateHintButtonStyle(btnHintCall, state.isHintCallUsed());
         updateHintButtonStyle(btnHintStudents, state.isHintStudentsUsed());
         updateHintButtonStyle(btnHintAvocado, state.isHintAvocadoUsed());
@@ -361,7 +373,8 @@ public class SecondaryController {
         revealBoard(clickedButton);
 
         if (isWin) {
-            lblFeedback.setText("CORRETO! +1000 PTS");
+            // TRADUZIDO: Correto
+            lblFeedback.setText("CORRECT! +1000 PTS");
             lblFeedback.setStyle("-fx-text-fill: #00ff00;");
             SoundManager.getInstance().playSound("correct.wav");
             state.addScore(1000);
@@ -369,7 +382,8 @@ public class SecondaryController {
             // Aguarda um pouco para o jogador curtir o acerto
             scheduleNextLevel(1500);
         } else {
-            lblFeedback.setText("ERRADO! PERDEU VIDA");
+            // TRADUZIDO: Errado
+            lblFeedback.setText("WRONG! LIFE LOST");
             lblFeedback.setStyle("-fx-text-fill: #ff3333;");
             SoundManager.getInstance().playSound("wrong.wav");
             state.decreaseLife();
@@ -408,7 +422,8 @@ public class SecondaryController {
                 btn.setOpacity(1.0);
             } else {
 
-                // As outras erradas ficam meio apagadas para dar foco na certa (e evitar a tela parecer uma árvore de natal)
+                // As outras erradas ficam meio apagadas para dar foco na certa (e evitar a tela
+                // parecer uma árvore de natal)
                 btn.setStyle("-fx-opacity: 0.3;");
             }
         }
@@ -451,7 +466,8 @@ public class SecondaryController {
     private GameData getEmergencyFallbackData() {
         GameData data = new GameData();
         data.correctName = "Pac-Man";
-        data.imageUrl = "https://i.imgur.com/EtVkAMm.jpeg"; // Imagem do IMGUR visto que o do API requer lógica mais complexa (e pois não é pra falhar po)
+        data.imageUrl = "https://i.imgur.com/EtVkAMm.jpeg"; // Imagem do IMGUR visto que o do API requer lógica mais
+                                                            // complexa (e pois não é pra falhar po)
         data.options.add("Pac-Man");
         data.options.add("Tetris");
         data.options.add("Space Invaders");
@@ -466,10 +482,12 @@ public class SecondaryController {
         LeaderboardManager.saveScore(state.getPlayerName(), state.getCurrentScore());
 
         if (win) {
-            lblFeedback.setText("PARABÉNS! VOCÊ ZEROU!");
+            // TRADUZIDO: Win
+            lblFeedback.setText("CONGRATULATIONS! YOU BEAT THE GAME!");
             lblFeedback.setStyle("-fx-text-fill: gold;");
             SoundManager.getInstance().playSound("win.wav");
         } else {
+            // TRADUZIDO: Lose (Game Over é universal)
             lblFeedback.setText("GAME OVER");
             lblFeedback.setStyle("-fx-text-fill: red;");
             SoundManager.getInstance().playSound("gameover.wav");
@@ -533,7 +551,8 @@ public class SecondaryController {
         }
     }
 
-    // Lógica de parse manual do JSON (sem bibliotecas externas) para evitar que as escolhas tenham nome de plataforma ou gênero em vez do nome do jogo em si
+    // Lógica de parse manual do JSON (sem bibliotecas externas) para evitar que as
+    // escolhas tenham nome de plataforma ou gênero em vez do nome do jogo em si
     private GameData parseJsonManually(String json) {
 
         // Copiando a lógica básica para garantir funcionamento:
@@ -592,7 +611,7 @@ public class SecondaryController {
         return data;
     }
 
-    // === MÉTODOS AUXILIARES DE PARSE === 
+    // === MÉTODOS AUXILIARES DE PARSE ===
 
     // Extrai a imagem de um trecho específico do JSON
     private String extractImageInRange(String json, int start, int end) {

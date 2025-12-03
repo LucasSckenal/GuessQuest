@@ -128,7 +128,7 @@ public class PrimaryController {
                     unlockInfinityMode();
                 } else if (bufferContent.endsWith("LORI")) {
                     triggerAudioOnlyEasterEgg("ieeeeei.wav", "IEEEEEI!");
-                } else if (bufferContent.endsWith("GATO") || bufferContent.endsWith("CAT")) {
+                } else if (bufferContent.endsWith("GATO")) {
                     triggerAnimalEasterEgg("cat");
                 } else if (bufferContent.endsWith("DOG")) {
                     triggerAnimalEasterEgg("dog");
