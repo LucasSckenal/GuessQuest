@@ -9,7 +9,6 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.Region?>
 
 <StackPane xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="br.edu.unijui.piu.guessquest.SecondaryController" styleClass="root">
@@ -18,6 +17,7 @@
 
     <BorderPane styleClass="arcade-container" maxWidth="1400" maxHeight="1000">
         
+        <!-- CABEÇALHO COM UI (vidas, fase e pontuação) -->
         <top>
             <HBox alignment="CENTER" spacing="20" style="-fx-padding: 0 0 20 0;">
                 <Label fx:id="lblLives" text="VIDAS: ♥ ♥ ♥ ♥ ♥" styleClass="header-text, header-lives" />
@@ -34,6 +34,7 @@
         <center>
             <VBox alignment="CENTER" spacing="15">
                 
+                <!-- IMAGEM DA PERGUNTA -->
                 <StackPane>
                     <ImageView fx:id="gameImage" fitWidth="600" fitHeight="350" preserveRatio="true" style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);" />
                     
@@ -44,6 +45,7 @@
 
                 <Label fx:id="lblFeedback" text="" minHeight="40" style="-fx-font-size: 16px; -fx-text-alignment: CENTER;" wrapText="true"/>
 
+                <!-- BOTÕES DE RESPOSTA -->
                 <GridPane alignment="CENTER" hgap="20" vgap="15" style="-fx-padding: 5;">
                      <columnConstraints>
                         <ColumnConstraints percentWidth="45" />
@@ -55,8 +57,9 @@
                     <Button fx:id="btnD" text="D) OPTION 4" onAction="#handleAnswer" styleClass="game-button, btn-opt-d" maxWidth="Infinity" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                 </GridPane>
 
+                <!-- BOTÕES DE DICAS -->
                 <HBox alignment="CENTER" spacing="15" style="-fx-padding: 15 0 0 0;">
-                    <Button fx:id="btnHintCall" text="📞 LIGAR P/ HACKER" onAction="#useHintCall" styleClass="hint-button, hint-call"/>
+                    <Button fx:id="btnHintCall" text="📞 LIGAR (OTACON)" onAction="#useHintCall" styleClass="hint-button, hint-call"/>
                     <Button fx:id="btnHintStudents" text="🎓 UNIVERSITÁRIOS" onAction="#useHintStudents" styleClass="hint-button, hint-students"/>
                     <Button fx:id="btnHintAvocado" text="🥑 PODER ABACATE" onAction="#useHintAvocado" styleClass="hint-button, hint-avocado"/>
                 </HBox>
@@ -65,7 +68,10 @@
         </center>
         
         <bottom>
-            <VBox minHeight="30" />
+            <!-- BOTÃO DE SAIR NO RODAPÉ -->
+            <VBox alignment="CENTER" style="-fx-padding: 20;">
+                <Button text="QUIT GAME" onAction="#exitToMenu" styleClass="btn-exit" prefWidth="200" />
+            </VBox>
         </bottom>
 
     </BorderPane>

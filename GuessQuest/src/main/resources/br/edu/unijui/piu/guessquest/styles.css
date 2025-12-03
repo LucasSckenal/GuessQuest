@@ -179,16 +179,18 @@
 }
 
 /* Feedback de Resposta (Usado via código Java) */
-.btn-correct {
+.btn-correct, .btn-correct:hover {
     -fx-background-color: #00aa00 !important;
     -fx-border-color: #00ff00 !important;
     -fx-text-fill: #ffffff !important;
+    -fx-effect: dropshadow(gaussian, #00ff00, 25, 0.5, 0, 0);
 }
 
-.btn-wrong {
+.btn-wrong, btn-wrong:hover {
     -fx-background-color: #cc0000 !important;
     -fx-border-color: #ff0000 !important;
     -fx-text-fill: #ffffff !important;
+    -fx-effect: dropshadow(gaussian, #ff0000, 25, 0.5, 0, 0);
 }
 
 /* =================================================================================
@@ -276,6 +278,11 @@
 }
 .retro-slider:hover .thumb {
     -fx-background-color: #000, #ffee44;
+}
+
+.retro-slider .thumb:pressed {
+    -fx-background-color: #000, #eebb00;
+    -fx-background-insets: 0, 3;
 }
 
 /* Toggles de Dificuldade */

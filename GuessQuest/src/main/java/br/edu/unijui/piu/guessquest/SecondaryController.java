@@ -93,8 +93,16 @@ public class SecondaryController {
     }
 
     // =========================================================================
-    // LÓGICA DAS DICAS (LIFELINES)
+    // LÓGICA DE SAÍDA E DICAS
     // =========================================================================
+
+    // NOVO: Botão de Sair no meio do jogo
+    @FXML
+    private void exitToMenu() throws IOException {
+        SoundManager.getInstance().playSound("select.wav");
+        // Poderia adicionar lógica de salvar pontuação parcial aqui se desejado
+        App.setRoot("primary");
+    }
 
     @FXML
     private void useHintCall() {
@@ -114,7 +122,7 @@ public class SecondaryController {
             // Feedback visual e sonoro
             SoundManager.getInstance().playSound("hint.wav");
             lblFeedback.setText("OTACON: 'Hackeei o sistema! A opção " + getOptionLetter(toRemove) + " é falsa!'");
-            lblFeedback.setStyle("-fx-text-fill: #3498db;"); // Azul
+            lblFeedback.setStyle("-fx-text-fill: #3498db;"); 
         }
     }
 
@@ -154,7 +162,7 @@ public class SecondaryController {
         // Feedback visual e sonoro
         SoundManager.getInstance().playSound("hint.wav");
         lblFeedback.setText("UNIVERSITÁRIOS: 'Acreditamos que seja a maior porcentagem...'");
-        lblFeedback.setStyle("-fx-text-fill: #ea80fc;"); // Roxo
+        lblFeedback.setStyle("-fx-text-fill: #ea80fc;"); 
     }
 
     @FXML
@@ -180,7 +188,7 @@ public class SecondaryController {
         // Feedback visual e sonoro
         SoundManager.getInstance().playSound("abacate.wav");
         lblFeedback.setText("ABACATE SAGRADO: 'A polpa divina eliminou as impurezas!'");
-        lblFeedback.setStyle("-fx-text-fill: #00ff00; -fx-font-weight: bold;"); // Verde
+        lblFeedback.setStyle("-fx-text-fill: #00ff00; -fx-font-weight: bold;"); 
     }
 
     // Atualiza o estilo do botão de dica para refletir se foi usado ou não
@@ -204,14 +212,10 @@ public class SecondaryController {
     }
 
     private Button getCorrectButton() {
-        if (isCorrect(btnA))
-            return btnA;
-        if (isCorrect(btnB))
-            return btnB;
-        if (isCorrect(btnC))
-            return btnC;
-        if (isCorrect(btnD))
-            return btnD;
+        if (isCorrect(btnA)) return btnA;
+        if (isCorrect(btnB)) return btnB;
+        if (isCorrect(btnC)) return btnC;
+        if (isCorrect(btnD)) return btnD;
         return null;
     }
 
@@ -226,13 +230,13 @@ public class SecondaryController {
         return cleanText.equalsIgnoreCase(correctGameName);
     }
 
+    // Limpa o texto do botão removendo prefixos e porcentagens
     private String cleanButtonText(String text) {
-        // Remove "A) ", "B) " e também as porcentagens " (50%)" se houver
+        // Remove "A) ", "B) " iniciais
         String temp = text.length() > 3 ? text.substring(3) : text;
-        if (temp.contains("(")) {
-            temp = temp.substring(0, temp.lastIndexOf("(")).trim();
-        }
-        return temp;
+        
+        // Remove APENAS a porcentagem da dica (ex: " (50%)") no final da string usando Regex.
+        return temp.replaceAll("\\s*\\(\\d+%\\)$", "").trim();
     }
 
     private String getOptionLetter(Button btn) {
@@ -250,7 +254,10 @@ public class SecondaryController {
         }
     }
 
-    // Lógica de carregamento de fase
+    // =========================================================================
+    // LÓGICA DE RESPOSTA E REVELAÇÃO
+    // =========================================================================
+
     private void loadNextLevel() {
 
         // Se passar da fase 15, termina o jogo
@@ -348,16 +355,20 @@ public class SecondaryController {
 
         interactionLocked = true;
 
-        if (selectedAnswer.equalsIgnoreCase(correctGameName)) {
-            clickedButton.getStyleClass().add("button-correct");
+        boolean isWin = selectedAnswer.equalsIgnoreCase(correctGameName);
+
+        // REVELA O TABULEIRO ANTES DE TUDO
+        revealBoard(clickedButton);
+
+        if (isWin) {
             lblFeedback.setText("CORRETO! +1000 PTS");
             lblFeedback.setStyle("-fx-text-fill: #00ff00;");
             SoundManager.getInstance().playSound("correct.wav");
             state.addScore(1000);
 
+            // Aguarda um pouco para o jogador curtir o acerto
             scheduleNextLevel(1500);
         } else {
-            clickedButton.getStyleClass().add("button-wrong");
             lblFeedback.setText("ERRADO! PERDEU VIDA");
             lblFeedback.setStyle("-fx-text-fill: #ff3333;");
             SoundManager.getInstance().playSound("wrong.wav");
@@ -367,12 +378,42 @@ public class SecondaryController {
             if (state.getCurrentLives() <= 0) {
                 endGame(false);
             } else {
-                scheduleNextLevel(1500);
+                // Aguarda um pouco mais no erro para ver a resposta correta
+                scheduleNextLevel(2500);
             }
         }
     }
 
-    // Agenda a próxima fase após um delay
+    // Revela o tabuleiro com cores corretas/erradas
+    private void revealBoard(Button clickedButton) {
+        List<Button> allButtons = new ArrayList<>();
+        allButtons.add(btnA);
+        allButtons.add(btnB);
+        allButtons.add(btnC);
+        allButtons.add(btnD);
+
+        for (Button btn : allButtons) {
+            if (isCorrect(btn)) {
+                // Mostra em verde a resposta certa (independente se foi ou não clicada)
+                if (!btn.getStyleClass().contains("btn-correct")) {
+                    btn.getStyleClass().add("btn-correct");
+                }
+                btn.setOpacity(1.0);
+            } else if (btn == clickedButton) {
+
+                // Mostra em vermelho somente a que o jogador clicou errado
+                if (!btn.getStyleClass().contains("btn-wrong")) {
+                    btn.getStyleClass().add("btn-wrong");
+                }
+                btn.setOpacity(1.0);
+            } else {
+
+                // As outras erradas ficam meio apagadas para dar foco na certa (e evitar a tela parecer uma árvore de natal)
+                btn.setStyle("-fx-opacity: 0.3;");
+            }
+        }
+    }
+
     private void scheduleNextLevel(int delay) {
         new java.util.Timer().schedule(new java.util.TimerTask() {
             @Override
@@ -396,12 +437,17 @@ public class SecondaryController {
     }
 
     private void resetSingleButton(Button btn, String style) {
+        // Isso remove as classes btn-correct/btn-wrong e restaura o padrão
         btn.getStyleClass().setAll(style);
         btn.setDisable(false);
-        btn.setStyle(""); // Reseta estilos inline (opacidade, cor de fundo)
+        btn.setStyle(""); // Limpa estilos inline (opacidade, etc)
+        btn.setOpacity(1.0);
     }
 
-    // Método de fallback de emergência em caso de falha na API
+    // =========================================================================
+    // API FETCH E HELPERS (Mantidos iguais)
+    // =========================================================================
+
     private GameData getEmergencyFallbackData() {
         GameData data = new GameData();
         data.correctName = "Pac-Man";

@@ -3,6 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.image.ImageView?>
 
 <StackPane xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="br.edu.unijui.piu.guessquest.PrimaryController" styleClass="root">
 
@@ -21,6 +22,7 @@
 
         <center>
             <StackPane>
+                <!-- 1. TELA DE NOME -->
                 <VBox fx:id="screenNameInput" alignment="CENTER" spacing="40">
                     <VBox alignment="CENTER" spacing="15">
                         <Label text="ENTER INITIALS" styleClass="label-retro" style="-fx-font-size: 20px;"/>
@@ -35,26 +37,25 @@
                             </HBox>
                         </StackPane>
                     </VBox>
-                    
                     <Button text="CONFIRM" onAction="#confirmName" styleClass="btn-start" prefWidth="300" prefHeight="60"/>
                 </VBox>
 
+                <!-- 2. TELA DE DIFICULDADE -->
                 <VBox fx:id="screenDifficulty" alignment="CENTER" spacing="30" visible="false">
                     <Label text="SELECT DIFFICULTY" styleClass="label-retro"/>
-                    
                     <VBox alignment="CENTER" spacing="15">
                         <ToggleButton fx:id="tglNormal" text="NORMAL" toggleGroup="$difficultyGroup" styleClass="diff-toggle, diff-normal" selected="true"/>
                         <ToggleButton fx:id="tglHard" text="HARD" toggleGroup="$difficultyGroup" styleClass="diff-toggle, diff-hard"/>
                         <ToggleButton fx:id="tglSouls" text="SOULS" toggleGroup="$difficultyGroup" styleClass="diff-toggle, diff-souls"/>
                         <ToggleButton fx:id="tglInfinity" text="∞ INFINITY" toggleGroup="$difficultyGroup" styleClass="diff-toggle, diff-infinity" visible="false" managed="false"/>
                     </VBox>
-
                     <HBox alignment="CENTER" spacing="20">
                         <Button text="&lt; BACK" onAction="#backToNameInput" styleClass="btn-exit" prefWidth="150" prefHeight="50"/>
                         <Button text="START GAME" onAction="#startGame" styleClass="btn-start" prefWidth="250" prefHeight="50"/>
                     </HBox>
                 </VBox>
 
+                <!-- 3. TELA DE SETTINGS (OPTIONS) -->
                 <VBox fx:id="screenSettings" alignment="CENTER" spacing="40" visible="false">
                     <Label text="SERVICE MENU" styleClass="label-retro" style="-fx-text-fill: #00eaff; -fx-font-size: 24px;"/>
                     
@@ -63,14 +64,43 @@
                             <Label text="MUSIC VOLUME" styleClass="label-retro" minWidth="150"/>
                             <Slider fx:id="volumeMusicSlider" styleClass="retro-slider" prefWidth="250"/>
                         </HBox>
-                        
                         <HBox alignment="CENTER" spacing="20">
                             <Label text="SFX VOLUME" styleClass="label-retro" minWidth="150"/>
                             <Slider fx:id="volumeSfxSlider" styleClass="retro-slider" prefWidth="250"/>
                         </HBox>
                     </VBox>
 
+                    <!-- Botão para Tela de Créditos -->
+                    <Button text="ABOUT TEAM" onAction="#goToCredits" styleClass="btn-leaderboard" prefWidth="250"/>
+
                     <Button text="&lt; BACK" onAction="#backToName" styleClass="btn-exit" prefWidth="200" prefHeight="50"/>
+                </VBox>
+
+                <!-- 4. TELA DE CRÉDITOS (ABOUT TEAM) -->
+                <VBox fx:id="screenCredits" alignment="CENTER" spacing="30" visible="false" style="-fx-background-color: rgba(0,0,0,0.9); -fx-padding: 20;">
+                    <Label text="DEVELOPMENT TEAM" styleClass="title-text" style="-fx-font-size: 30px;"/>
+                    
+                    <HBox alignment="CENTER" spacing="40">
+                        <VBox alignment="CENTER" spacing="10">
+                            <ImageView fx:id="imgDev1" fitWidth="100" fitHeight="100" />
+                            <Label text="Henrique Luan F." styleClass="label-retro" style="-fx-text-fill: #4f69ffff;"/>
+                            <Label text="Ciência da Computação" styleClass="label-retro" style="-fx-font-size: 12px;"/>
+                        </VBox>
+
+                        <VBox alignment="CENTER" spacing="10">
+                            <ImageView fx:id="imgDev2" fitWidth="100" fitHeight="100" />
+                            <Label text="Luan Vitor C. D." styleClass="label-retro" style="-fx-text-fill: #79fc8eff;"/>
+                            <Label text="Ciência da Computação" styleClass="label-retro" style="-fx-font-size: 12px;"/>
+                        </VBox>
+
+                        <VBox alignment="CENTER" spacing="10">
+                            <ImageView fx:id="imgDev3" fitWidth="100" fitHeight="100" />
+                            <Label text="Lucas Sckenal P." styleClass="label-retro" style="-fx-text-fill: #9b4fffff;"/>
+                            <Label text="Ciência da Computação" styleClass="label-retro" style="-fx-font-size: 12px;"/>
+                        </VBox>
+                    </HBox>
+
+                    <Button text="&lt; BACK" onAction="#backToSettings" styleClass="btn-exit" prefWidth="200"/>
                 </VBox>
 
             </StackPane>
