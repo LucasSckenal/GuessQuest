@@ -11,19 +11,14 @@
     <td><a href="#tecnologias">⚙️ Tecnologias</a></td>
   </tr>
   <tr>
+    <td><a href="#apis">🤖 APIs </a></td>
     <td><a href="#estrutura-do-projeto">🏗️ Estrutura</a></td>
     <td><a href="#instalação">💻 Instalação</a></td>
-    <td><a href="#configurações">🔐 Variáveis</a></td>
   </tr>
   <tr>
     <td><a href="#execução">🚀 Execução</a></td>
-    <td><a href="#contribuição">🤝 Contribuição</a></td>
     <td><a href="#autores">👥 Autores</a></td>
-  </tr>
-  <tr>
     <td><a href="#licença">📄 Licença</a></td>
-    <td></td>
-    <td></td>
   </tr>
 </table>
 
@@ -56,7 +51,19 @@ e empacotamento via `jpackage`.
 -   **Java 17+**;
 -   **JavaFX**;
 -   **Maven**;
--   **JPackage (JDK)**.
+-   **CSS**;
+-   **JPackage (JDK)**;
+-   **Biblioteca http**.
+
+---
+
+## APIs
+
+-   **RAWG**: Usado para jogo funcionar;
+-   **Github API**: Usado para mostrar o avatar dos desenvolvedores; 
+-   **The Cat API**: Usado no easter egg escrevendo "GATO";
+-   **Random-d.uk**: Usado no easter egg escrevendo "PATO";
+-   **Dog API**: Usado no easter egg escrevendo "DOG".
 
 ---
 
@@ -64,22 +71,28 @@ e empacotamento via `jpackage`.
 
     GuessQuest/
     ├── src/main/
-    │   ├── java/br/edu/unijui/piu/guessquest/
-    │   │   ├── App.java
-    │   │   ├── Launcher.java
-    │   │   ├── GameState.java
-    │   │   ├── SoundManager.java
-    │   │   ├── PrimaryController.java
-    │   │   ├── SecondaryController.java
-    │   │   ├── LeaderboardController.java
-    │   │   ├── LeaderboardManager.java
-    │   │   └── module-info.java
-    │   └── resources/br/edu/unijui/piu/guessquest/
-    │       ├── audio/
-    │       ├── primary.fxml
-    │       ├── secondary.fxml
-    │       ├── leaderboard.fxml
-    │       └── styles.css
+    │   ├── java/
+    │   │   ├── module-info.java
+    │   │   └── br/edu/unijui/piu/guessquest/
+    │   │       ├── App.java
+    │   │       ├── Launcher.java
+    │   │       ├── GameState.java
+    │   │       ├── SoundManager.java
+    │   │       ├── PrimaryController.java
+    │   │       ├── SecondaryController.java
+    │   │       ├── LeaderboardController.java
+    │   │       └── LeaderboardManager.java
+    │   │    
+    │   └── resources/
+    │       ├── fonts/
+    │       └── br/edu/unijui/piu/guessquest/
+    │           ├── audio/
+    │           ├── primary.fxml
+    │           ├── secondary.fxml
+    │           ├── leaderboard.fxml
+    │           ├── styles.css
+    │           └── Arcade.jpg
+    │
     ├── pom.xml
     └── README.md
 
@@ -98,7 +111,7 @@ mvn clean javafx:run
 
 ---
 
-## Execução como Aplicação Desktop
+## Execução
 
 Após rodar:
 
@@ -140,4 +153,4 @@ Por favor siga o padrão de código, mantenha testes atualizados, etc.
 
 ## Licença
 
-Este projeto está licenciado sob os termos da licença [MIT](./LICENSE).
+Este projeto está licenciado sob os termos da licença [Apache](./LICENSE).
