@@ -183,7 +183,7 @@ public class PrimaryController {
         btnOptions.setText(isPT ? "OPÇÕES" : "OPTIONS");
         btnExit.setText(isPT ? "SAIR" : "EXIT");
 
-        lblF11Hint.setText(isPT ? "PRESSIONE F11 PARA TELA CHEIA" : "PRESS F11 FOR FULLSCREEN");
+        lblF11Hint.setText(isPT ? "PRESSIONE F11 PARA ALTERNAR O MODO DE TELA CHEIA" : "PRESS F11 TO TOGGLE FULLSCREEN");
     }
 
     /**

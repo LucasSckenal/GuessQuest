@@ -143,8 +143,8 @@
 
                 <!-- Dica de Fullscreen e Versão -->
                 <VBox alignment="CENTER" spacing="5" style="-fx-padding: 10px 0 0 0;">
-                     <Label text="v2.3 FINAL PATCH" style="-fx-text-fill: #666; -fx-font-size: 12px;" />
-                     <Label fx:id="lblF11Hint" text="PRESS F11 FOR FULLSCREEN" style="-fx-text-fill: #888; -fx-font-family: 'Courier New'; -fx-font-size: 12px; -fx-opacity: 1.0; -fx-padding: 10 0 0 0;" />
+                     <Label fx:id="lblF11Hint" text="PRESS F11 TO TOGGLE FULLSCREEN" style="-fx-text-fill: #ffffffff; -fx-font-size: 12px; -fx-opacity: 1.0; -fx-padding: 10 0 0 0;" />
+                     <Label text="v2.3 FINAL PATCH" style="-fx-text-fill: #ffffffff; -fx-font-size: 12px;" />
                 </VBox>
             </VBox>
         </bottom>
