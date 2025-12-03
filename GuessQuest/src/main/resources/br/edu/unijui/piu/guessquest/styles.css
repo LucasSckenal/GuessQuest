@@ -5,21 +5,32 @@
 
 /* 1. CONFIGURAÇÕES GERAIS E O GABINETE */
 .root {
+    /* Fonte padrão para toda a aplicação */
+    -fx-font-family: 'Press Start 2P', monospace;
+    /* Fundo padrão (talvez preto para telas pequenas) */
+    -fx-background-color: black;
+}
+
+/* Classe para colocar overlay do fliperama */
+.root.desktop-mode {
     /* Foto da Máquina de Fliperama */
-    -fx-background-image: url('arcade.jpg');
+    -fx-background-image: url('arcade.jpeg');
     -fx-background-size: 100% 100%;
     -fx-background-position: center;
     -fx-background-repeat: no-repeat;
-    
-    /* Fonte padrão para toda a aplicação */
-    -fx-font-family: 'Press Start 2P', monospace;
 }
 
 /* Container que alinha o conteúdo dentro da tela da foto */
 .arcade-container {
     -fx-background-color: transparent;
     
-    /* === MANTIDO O SEU AJUSTE DE MARGEM ORIGINAL === */
+    /* Padrão para telas pequenas (sem a moldura da foto) */
+    -fx-padding: 20; 
+}
+
+/* Ajuste específico para quando a imagem de fundo existe */
+.root.desktop-mode .arcade-container {
+    /* === Ajusta a margem levando em consideração o overlay === */
     -fx-padding: 85 115 80 115; 
     
     /* Curvatura da tela CRT */
@@ -34,7 +45,7 @@
             rgba(0, 0, 0, 0.25) 50%);
     -fx-background-size: 100% 4px;
     -fx-opacity: 0.3;
-    -fx-mouse-transparent: true; /* Permite clicar através do efeito */
+    -fx-mouse-transparent: true; /* Permite clicar através do efeito (não deixa o cursor do mouse transparente não) */
 }
 
 /* =================================================================================
@@ -45,13 +56,13 @@
     -fx-font-family: 'Press Start 2P';
     -fx-font-size: 50px;
     -fx-text-fill: linear-gradient(to bottom, #e0ffff, #00eaff);
-    -fx-effect: dropshadow(gaussian, rgba(0, 234, 255, 0.3), 25, 0.3, 0, 0);
+    -fx-effect: dropshadow(gaussian, rgba(0, 234, 255, 0.3), 25, 0.6, 0, 0);
 }
 
 .blink-text {
     -fx-text-fill: #ffff00;
     -fx-font-size: 18px;
-    -fx-effect: dropshadow(one-pass-box, rgba(255, 255, 0, 0.3), 10, 0.5, 0, 0);
+    -fx-effect: dropshadow(one-pass-box, rgba(255, 255, 0, 0.6), 10, 0.5, 0, 0);
 }
 
 .label-retro {
@@ -63,7 +74,7 @@
 .header-text {
     -fx-font-size: 18px;
     -fx-text-fill: #ffffff;
-    -fx-effect: dropshadow(gaussian, rgba(255, 255, 255, 0.5), 20, 0.3, 0, 0);
+    -fx-effect: dropshadow(gaussian, rgba(255, 255, 255, 0.5), 20, 0.6, 0, 0);
 }
 
 .header-lives {
@@ -107,7 +118,7 @@
 .btn-start:hover {
     -fx-background-color: #00ff00;
     -fx-text-fill: #000000; /* Preto no Verde */
-    -fx-effect: dropshadow(gaussian, #00ff00, 20, 0.3, 0, 0);
+    -fx-effect: dropshadow(gaussian, #00ff00, 20, 0.6, 0, 0);
 }
 
 /* --- RANK / OPTIONS (Ciano Neon) --- */
@@ -118,7 +129,7 @@
 .btn-leaderboard:hover {
     -fx-background-color: #00eaff;
     -fx-text-fill: #000000;
-    -fx-effect: dropshadow(gaussian, #00eaff, 20, 0.3, 0, 0);
+    -fx-effect: dropshadow(gaussian, #00eaff, 20, 0.6, 0, 0);
 }
 
 /* --- EXIT / BACK (Vermelho Perigo) --- */
@@ -129,7 +140,7 @@
 .btn-exit:hover {
     -fx-background-color: #ff3333;
     -fx-text-fill: #ffffff; /* BRANCO NO VERMELHO (Melhor contraste) */
-    -fx-effect: dropshadow(gaussian, #ff3333, 20, 0.3, 0, 0);
+    -fx-effect: dropshadow(gaussian, #ff3333, 20, 0.6, 0, 0);
 }
 
 /* =================================================================================
@@ -304,7 +315,7 @@
     -fx-background-color: #440000;
     -fx-border-color: #ff0000;
     -fx-text-fill: #ff0000;
-    -fx-effect: dropshadow(gaussian, #ff0000, 20, 0.3, 0, 0);
+    -fx-effect: dropshadow(gaussian, #ff0000, 20, 0.6, 0, 0);
 }
 
 .diff-infinity:selected {
