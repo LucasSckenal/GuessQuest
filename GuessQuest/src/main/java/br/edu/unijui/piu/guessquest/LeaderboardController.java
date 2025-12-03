@@ -28,6 +28,7 @@ public class LeaderboardController {
 
     @FXML
     public void initialize() {
+        // Aplica tradução baseado no estado atual de idioma
         boolean isPT = GameState.getInstance().getLanguage() == GameState.Language.PT;
         lblTopPlayers.setText(isPT ? "TOP 5 JOGADORES" : "TOP 5 PLAYERS");
         btnBack.setText(isPT ? "< VOLTAR" : "< BACK");
@@ -35,6 +36,9 @@ public class LeaderboardController {
         loadLeaderboard();
     }
 
+    /**
+     * Carrega os scores do LeaderboardManager e cria as linhas animadas.
+     */
     private void loadLeaderboard() {
         List<LeaderboardManager.ScoreEntry> scores = LeaderboardManager.loadScores();
 
@@ -59,8 +63,8 @@ public class LeaderboardController {
             Label value = new Label(String.format("%06d", entry.score));
             value.getStyleClass().addAll("rank-score", rankClass);
 
+            // Lógica para adicionar a coroa ao primeiro lugar de forma alinhada a escrita (centralizada)
             if (index == 0) {
-                // --- AJUSTE DE ALINHAMENTO VISUAL ---
 
                 Label crown = new Label("👑");
                
@@ -72,13 +76,11 @@ public class LeaderboardController {
                 nameContainer.add(crown, 0, 0);                
                 nameContainer.add(name, 1, 0);
 
-                // Força o alinhamento vertical das células para o CENTRO
                 GridPane.setValignment(crown, javafx.geometry.VPos.CENTER); 
                 GridPane.setValignment(name, javafx.geometry.VPos.CENTER); 
 
                 line.getChildren().addAll(nameContainer, value);                
 
-                // -----------------------------------------------------------
             } else {
                 line.getChildren().addAll(name, value);
             }
@@ -92,6 +94,7 @@ public class LeaderboardController {
                 break;
         }
 
+        // Caso não tenha registros, exibe mensagem apropriada
         if (scores.isEmpty()) {
             boolean isPT = GameState.getInstance().getLanguage() == GameState.Language.PT;
             Label empty = new Label(isPT ? "SEM REGISTROS" : "NO RECORDS");
